@@ -1,9 +1,4 @@
 .tool-versions
-.env
 gmb_discovery.json
 client_secrets.json
 credentials.dat
-*.pyc
-__pycache__/
-sentiments_lastrun
-cluster_labels.txt

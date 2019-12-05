@@ -299,11 +299,6 @@
           ]
         }
       ]
-    },
-    {
-      "name": "topic",
-      "type": "STRING",
-      "mode": "NULLABLE"
     }
   ],
   "accounts": [
@@ -402,23 +397,6 @@
       "name": "createTime",
       "type": "TIMESTAMP",
       "mode": "NULLABLE"
-    },
-    {
-      "name": "reviewReply",
-      "type": "RECORD",
-      "mode": "NULLABLE",
-      "fields": [
-        {
-          "name": "comment",
-          "type": "STRING",
-          "mode": "NULLABLE"
-        },
-        {
-          "name": "updateTime",
-          "type": "STRING",
-          "mode": "NULLABLE"
-        }
-      ]
     }
   ],
   "locations": [
@@ -431,74 +409,6 @@
       "name": "websiteUrl",
       "type": "STRING",
       "mode": "NULLABLE"
-    },
-    {
-      "name": "regularHours",
-      "type": "RECORD",
-      "mode": "NULLABLE",
-      "fields": [
-        {
-          "name": "periods",
-          "type": "RECORD",
-          "mode": "REPEATED",
-          "fields": [
-            {
-              "name": "openDay",
-              "type": "STRING",
-              "mode": "NULLABLE"
-            },
-            {
-              "name": "openTime",
-              "type": "STRING",
-              "mode": "NULLABLE"
-            },
-            {
-              "name": "closeDay",
-              "type": "STRING",
-              "mode": "NULLABLE"
-            },
-            {
-              "name": "closeTime",
-              "type": "STRING",
-              "mode": "NULLABLE"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "specialHours",
-      "type": "RECORD",
-      "mode": "NULLABLE",
-      "fields": [
-        {
-          "name": "periods",
-          "type": "RECORD",
-          "mode": "REPEATED",
-          "fields": [
-            {
-              "name": "openDay",
-              "type": "STRING",
-              "mode": "NULLABLE"
-            },
-            {
-              "name": "openTime",
-              "type": "STRING",
-              "mode": "NULLABLE"
-            },
-            {
-              "name": "closeDay",
-              "type": "STRING",
-              "mode": "NULLABLE"
-            },
-            {
-              "name": "closeTime",
-              "type": "STRING",
-              "mode": "NULLABLE"
-            }
-          ]
-        }
-      ]
     },
     {
       "name": "additionalCategories",
@@ -573,17 +483,12 @@
             },
             {
               "name": "radiusKm",
-              "type": "FLOAT64",
+              "type": "INT64",
               "mode": "NULLABLE"
             }
           ]
         }
       ]
-    },
-    {
-      "name": "labels",
-      "type": "STRING",
-      "mode": "REPEATED"
     },
     {
       "name": "locationKey",
@@ -601,11 +506,6 @@
           "mode": "NULLABLE"
         }
       ]
-    },
-    {
-      "name": "storeCode",
-      "type": "STRING",
-      "mode": "NULLABLE"
     },
     {
       "name": "locationName",
@@ -717,201 +617,6 @@
           "name": "isVerified",
           "type": "BOOLEAN",
           "mode": "NULLABLE"
-        },
-        {
-          "name": "isDisabled",
-          "type": "BOOLEAN",
-          "mode": "NULLABLE"
-        }
-      ]
-    }
-  ],
-  "insights": [
-    {
-      "name": "locationName",
-      "type": "STRING",
-      "mode": "NULLABLE"
-    },
-    {
-      "name": "timeZone",
-      "type": "STRING",
-      "mode": "NULLABLE"
-    },
-    {
-      "name": "metricValues",
-      "type": "RECORD",
-      "mode": "REPEATED",
-      "fields": [
-        {
-          "name": "metric",
-          "type": "STRING",
-          "mode": "NULLABLE"
-        },
-        {
-          "name": "dimensionalValues",
-          "type": "RECORD",
-          "mode": "REPEATED",
-          "fields": [
-            {
-              "name": "value",
-              "type": "STRING",
-              "mode": "NULLABLE"
-            },
-            {
-              "name": "metricOption",
-              "type": "STRING",
-              "mode": "NULLABLE"
-            },
-            {
-              "name": "timeDimension",
-              "type": "RECORD",
-              "mode": "NULLABLE",
-              "fields": [
-                {
-                  "name": "timeRange",
-                  "type": "RECORD",
-                  "mode": "NULLABLE",
-                  "fields": [
-                    {
-                      "name": "startTime",
-                      "type": "STRING",
-                      "mode": "NULLABLE"
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    }
-  ],
-  "directions": [
-    {
-      "name": "locationName",
-      "type": "STRING",
-      "mode": "NULLABLE"
-    },
-    {
-      "name": "timeZone",
-      "type": "STRING",
-      "mode": "NULLABLE"
-    },
-    {
-      "name": "topDirectionSources",
-      "type": "RECORD",
-      "mode": "REPEATED",
-      "fields": [
-        {
-          "name": "dayCount",
-          "type": "INT64",
-          "mode": "NULLABLE"
-        },
-        {
-          "name": "regionCounts",
-          "type": "RECORD",
-          "mode": "REPEATED",
-          "fields": [
-            {
-              "name": "label",
-              "type": "STRING",
-              "mode": "NULLABLE"
-            },
-            {
-              "name": "count",
-              "type": "STRING",
-              "mode": "NULLABLE"
-            },
-            {
-              "name": "latlng",
-              "type": "RECORD",
-              "mode": "NULLABLE",
-              "fields": [
-                {
-                  "name": "latitude",
-                  "type": "FLOAT64",
-                  "mode": "NULLABLE"
-                },
-                {
-                  "name": "longitude",
-                  "type": "FLOAT64",
-                  "mode": "NULLABLE"
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    }
-  ],
-  "hourly_calls": [
-    {
-      "name": "locationName",
-      "type": "STRING",
-      "mode": "NULLABLE"
-    },
-    {
-      "name": "timeZone",
-      "type": "STRING",
-      "mode": "NULLABLE"
-    },
-    {
-      "name": "metricValues",
-      "type": "RECORD",
-      "mode": "REPEATED",
-      "fields": [
-        {
-          "name": "metric",
-          "type": "STRING",
-          "mode": "NULLABLE"
-        },
-        {
-          "name": "dimensionalValues",
-          "type": "RECORD",
-          "mode": "REPEATED",
-          "fields": [
-            {
-              "name": "value",
-              "type": "STRING",
-              "mode": "NULLABLE"
-            },
-            {
-              "name": "metricOption",
-              "type": "STRING",
-              "mode": "NULLABLE"
-            },
-            {
-              "name": "timeDimension",
-              "type": "RECORD",
-              "mode": "NULLABLE",
-              "fields": [
-                {
-                  "name": "timeOfDay",
-                  "type": "RECORD",
-                  "mode": "NULLABLE",
-                  "fields": [
-                    {
-                      "name": "hours",
-                      "type": "STRING",
-                      "mode": "NULLABLE"
-                    }
-                  ]
-                },
-                {
-                  "name": "timeRange",
-                  "type": "RECORD",
-                  "mode": "NULLABLE",
-                  "fields": [
-                    {
-                      "name": "startTime",
-                      "type": "STRING",
-                      "mode": "NULLABLE"
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
         }
       ]
     }

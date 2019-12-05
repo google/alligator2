@@ -18,99 +18,40 @@ import sys
 
 from api import API
 
-INSIGHTS = "insights"
-REVIEWS = "reviews"
-SENTIMENT = "sentiment"
-DIRECTIONS = "directions"
-HOURLY_CALLS = "hourly_calls"
-TOPIC_CLUSTERING = "topic_clustering"
-
 
 class Alligator():
 
   @classmethod
-  def sentiment_only(cls, project_id, language, flags):
-    api = API(project_id, language, flags)
+  def sentiment_analysis_for_all_reviews(cls, project_id):
+    api = API(project_id)
     api.sentiments()
 
   @classmethod
-  def for_account_and_location(cls, project_id, account_id, location_id,
-                               language, flags):
-    api = API(project_id, language, flags)
-
-    location_name = u"accounts/{}/locations/{}".format(account_id, location_id)
-
-    api.locations(u"accounts/{}".format(account_id), location_id=location_name)
-
-    if flags[INSIGHTS]:
-      api.insights(location_name)
-    if flags[DIRECTIONS]:
-      api.directions(location_name)
-    if flags[HOURLY_CALLS]:
-      api.hourly_calls(location_name)
-    if flags[REVIEWS]:
-      api.reviews(location_name)
-    if flags[SENTIMENT]:
-      api.sentiments()
+  def for_account_and_location(cls, project_id, account_id, location_id):
+    api = API(project_id)
+    api.reviews(u"accounts/{}/locations/{}".format(account_id, location_id))
 
   @classmethod
-  def for_account(cls, project_id, account_id, language, flags):
-    api = API(project_id, language, flags)
+  def for_account(cls, project_id, account_id):
+    api = API(project_id)
     locations = api.locations(u"accounts/{}".format(account_id))
-    num_locations = len(locations)
-    loc_ctr = 1
 
     for location in locations:
-      logging.info("Processing location {} of {}...".format(
-        loc_ctr, num_locations))
       location_name = location.get("name")
-      if flags[INSIGHTS]:
-        api.insights(location_name)
-      if flags[DIRECTIONS]:
-        api.directions(location_name)
-      if flags[HOURLY_CALLS]:
-        api.hourly_calls(location_name)
-      if flags[REVIEWS]:
-        api.reviews(location_name)
-
-      loc_ctr = loc_ctr + 1
-
-    if flags[SENTIMENT]:
-      api.sentiments()
+      api.reviews(location_name)
 
   @classmethod
-  def all(cls, project_id, language, flags):
-    api = API(project_id, language, flags)
+  def all(cls, project_id):
+    api = API(project_id)
     accounts = api.accounts()
-    num_accounts = len(accounts)
-    ac_ctr = 1
 
     for account in accounts:
-      logging.info("Processing account {} of {}...".format(
-        ac_ctr, num_accounts))
       account_name = account.get("name")
       locations = api.locations(account_name)
-      num_locations = len(locations)
-      loc_ctr = 1
 
       for location in locations:
-        logging.info("Processing location {} of {}...".format(
-          loc_ctr, num_locations))
         location_name = location.get("name")
-        if flags[INSIGHTS]:
-          api.insights(location_name)
-        if flags[DIRECTIONS]:
-          api.directions(location_name)
-        if flags[HOURLY_CALLS]:
-          api.hourly_calls(location_name)
-        if flags[REVIEWS]:
-          api.reviews(location_name)
-
-        loc_ctr = loc_ctr + 1
-      ac_ctr = ac_ctr + 1
-
-    if flags[SENTIMENT]:
-      api.sentiments()
+        api.reviews(location_name)
 
 
 def main(argv):
@@ -134,104 +75,43 @@ def main(argv):
       help="retrieve and store all Google My Business reviews for a given Location ID (--account_id is also required)"
   )
   parser.add_argument(
-      "--language",
-      type=str,
-      help="the ISO-639-1 language code in which the Google My Business reviews are written (used for sentiment processing)"
-  )
-  parser.add_argument(
-      "--no_insights",
-      help="skip the insights processing and storage",
-      action="store_true")
-  parser.add_argument(
-      "--no_reviews",
-      help="skip the reviews processing and storage",
-      action="store_true")
-  parser.add_argument(
-      "--no_sentiment",
-      help="skip the sentiment processing and storage",
-      action="store_true")
-  parser.add_argument(
-      "--no_directions",
-      help="skip the directions processing and storage",
-      action="store_true")
-  parser.add_argument(
-      "--no_hourly_calls",
-      help="skip the hourly calls processing and storage",
-      action="store_true")
-  parser.add_argument(
-      "--no_topic_clustering",
-      help="skip the extraction of topics for each reviews",
-      action="store_true")
-  parser.add_argument(
+      "-s",
       "--sentiment_only",
-      help="only process and store the sentiment of all available reviews (if --no-sentiment is provided, no action is performed)",
-      action="store_true")
-  parser.add_argument(
-      "-q",
-      "--quiet",
-      help="only show warning and error messages (overrides --verbose)",
+      help="process and store the sentiment of all available reviews for a project",
       action="store_true")
   parser.add_argument(
       "-v", "--verbose", help="increase output verbosity", action="store_true")
   args = parser.parse_args()
 
+  verbose = args.verbose
+  sentiment_only = args.sentiment_only
   project_id = args.project_id
   account_id = args.account_id
   location_id = args.location_id
-  language = args.language
-
-  flags = {}
-  flags[INSIGHTS] = not args.no_insights
-  flags[DIRECTIONS] = not args.no_directions
-  flags[HOURLY_CALLS] = not args.no_hourly_calls
-  flags[REVIEWS] = not args.no_reviews
-  flags[SENTIMENT] = not args.no_sentiment
-  flags[TOPIC_CLUSTERING] = not args.no_topic_clustering
-
-  sentiment_only = args.sentiment_only
-  quiet = args.quiet
-  verbose = args.verbose
 
   sys.argv.clear()
 
-  log_format = "[%(asctime)s] %(levelname)s [%(name)s] %(message)s"
-  date_format = "%H:%M:%S"
-  if quiet:
-    logging.basicConfig(
-        format=log_format, datefmt=date_format, level=logging.WARNING)
-  elif verbose:
-    logging.basicConfig(
-        format=log_format, datefmt=date_format, level=logging.DEBUG)
-  else:
-    logging.basicConfig(
-        format=log_format, datefmt=date_format, level=logging.INFO)
+  if verbose:
+    logging.basicConfig(level=logging.DEBUG)
 
-  logging.info(u"Project ID:\t%s", project_id)
-  logging.info(u"Account ID:\t%s", account_id)
-  logging.info(u"Location ID:\t%s", location_id)
-  logging.info(u"Language:\t%s", language)
+  logging.info(u"Project ID:\t{}".format(project_id))
+  logging.info(u"Account ID:\t{}".format(account_id))
+  logging.info(u"Location ID:\t{}".format(location_id))
 
   if sentiment_only:
-    if flags[SENTIMENT]:
-      logging.info("Running sentiment analysis for all reviews in BigQuery...")
-      Alligator.sentiment_only(project_id, language, flags)
-    else:
-      logging.warning(
-          "No action will be performed as --no_sentiment and --sentiment_only flags have been provided."
-      )
+    print("Running sentiment analysis for all reviews in BigQuery...")
+    Alligator.sentiment_analysis_for_all_reviews(project_id)
     sys.exit()
 
-  logging.info("Loading Google My Business reviews into BigQuery...")
-
+  print("Loading all Google My Business reviews into BigQuery...")
   if account_id and location_id:
-    Alligator.for_account_and_location(project_id, account_id, location_id,
-                                       language, flags)
+    Alligator.for_account_and_location(project_id, account_id, location_id)
   elif account_id:
-    Alligator.for_account(project_id, account_id, language, flags)
+    Alligator.for_account(project_id, account_id)
   else:
-    Alligator.all(project_id, language, flags)
+    Alligator.all(project_id)
 
-  logging.info("Done.")
+  print("Done.")
 
 
 if __name__ == "__main__":
