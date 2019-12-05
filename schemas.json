@@ -1,0 +1,624 @@
+{
+  "sentiments": [
+    {
+      "name": "name",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "reviewId",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "comment",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "annotation",
+      "type": "RECORD",
+      "mode": "NULLABLE",
+      "fields": [
+        {
+          "name": "sentences",
+          "type": "RECORD",
+          "mode": "REPEATED",
+          "fields": [
+            {
+              "name": "text",
+              "type": "RECORD",
+              "mode": "NULLABLE",
+              "fields": [
+                {
+                  "name": "content",
+                  "type": "STRING",
+                  "mode": "NULLABLE"
+                },
+                {
+                  "name": "beginOffset",
+                  "type": "INT64",
+                  "mode": "NULLABLE"
+                }
+              ]
+            },
+            {
+              "name": "sentiment",
+              "type": "RECORD",
+              "mode": "NULLABLE",
+              "fields": [
+                {
+                  "name": "magnitude",
+                  "type": "FLOAT64",
+                  "mode": "NULLABLE"
+                },
+                {
+                  "name": "score",
+                  "type": "FLOAT64",
+                  "mode": "NULLABLE"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "tokens",
+          "type": "RECORD",
+          "mode": "REPEATED",
+          "fields": [
+            {
+              "name": "text",
+              "type": "RECORD",
+              "mode": "NULLABLE",
+              "fields": [
+                {
+                  "name": "content",
+                  "type": "STRING",
+                  "mode": "NULLABLE"
+                },
+                {
+                  "name": "beginOffset",
+                  "type": "INT64",
+                  "mode": "NULLABLE"
+                }
+              ]
+            },
+            {
+              "name": "partOfSpeech",
+              "type": "RECORD",
+              "mode": "NULLABLE",
+              "fields": [
+                {
+                  "name": "tag",
+                  "type": "STRING",
+                  "mode": "NULLABLE"
+                },
+                {
+                  "name": "aspect",
+                  "type": "STRING",
+                  "mode": "NULLABLE"
+                },
+                {
+                  "name": "case",
+                  "type": "STRING",
+                  "mode": "NULLABLE"
+                },
+                {
+                  "name": "form",
+                  "type": "STRING",
+                  "mode": "NULLABLE"
+                },
+                {
+                  "name": "gender",
+                  "type": "STRING",
+                  "mode": "NULLABLE"
+                },
+                {
+                  "name": "mood",
+                  "type": "STRING",
+                  "mode": "NULLABLE"
+                },
+                {
+                  "name": "number",
+                  "type": "STRING",
+                  "mode": "NULLABLE"
+                },
+                {
+                  "name": "person",
+                  "type": "STRING",
+                  "mode": "NULLABLE"
+                },
+                {
+                  "name": "proper",
+                  "type": "STRING",
+                  "mode": "NULLABLE"
+                },
+                {
+                  "name": "reciprocity",
+                  "type": "STRING",
+                  "mode": "NULLABLE"
+                },
+                {
+                  "name": "tense",
+                  "type": "STRING",
+                  "mode": "NULLABLE"
+                },
+                {
+                  "name": "voice",
+                  "type": "STRING",
+                  "mode": "NULLABLE"
+                }
+              ]
+            },
+            {
+              "name": "dependencyEdge",
+              "type": "RECORD",
+              "mode": "NULLABLE",
+              "fields": [
+                {
+                  "name": "headTokenIndex",
+                  "type": "INT64",
+                  "mode": "NULLABLE"
+                },
+                {
+                  "name": "label",
+                  "type": "STRING",
+                  "mode": "NULLABLE"
+                }
+              ]
+            },
+            {
+              "name": "lemma",
+              "type": "STRING",
+              "mode": "NULLABLE"
+            }
+          ]
+        },
+        {
+          "name": "entities",
+          "type": "RECORD",
+          "mode": "REPEATED",
+          "fields": [
+            {
+              "name": "name",
+              "type": "STRING",
+              "mode": "NULLABLE"
+            },
+            {
+              "name": "type",
+              "type": "STRING",
+              "mode": "NULLABLE"
+            },
+            {
+              "name": "salience",
+              "type": "FLOAT64",
+              "mode": "NULLABLE"
+            },
+            {
+              "name": "mentions",
+              "type": "RECORD",
+              "mode": "REPEATED",
+              "fields": [
+                {
+                  "name": "text",
+                  "type": "RECORD",
+                  "mode": "NULLABLE",
+                  "fields": [
+                    {
+                      "name": "content",
+                      "type": "STRING",
+                      "mode": "NULLABLE"
+                    },
+                    {
+                      "name": "beginOffset",
+                      "type": "INT64",
+                      "mode": "NULLABLE"
+                    }
+                  ]
+                },
+                {
+                  "name": "type",
+                  "type": "STRING",
+                  "mode": "NULLABLE"
+                },
+                {
+                  "name": "sentiment",
+                  "type": "RECORD",
+                  "mode": "NULLABLE",
+                  "fields": [
+                    {
+                      "name": "magnitude",
+                      "type": "FLOAT64",
+                      "mode": "NULLABLE"
+                    },
+                    {
+                      "name": "score",
+                      "type": "FLOAT64",
+                      "mode": "NULLABLE"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "sentiment",
+              "type": "RECORD",
+              "mode": "NULLABLE",
+              "fields": [
+                {
+                  "name": "magnitude",
+                  "type": "FLOAT64",
+                  "mode": "NULLABLE"
+                },
+                {
+                  "name": "score",
+                  "type": "FLOAT64",
+                  "mode": "NULLABLE"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "documentSentiment",
+          "type": "RECORD",
+          "mode": "NULLABLE",
+          "fields": [
+            {
+              "name": "magnitude",
+              "type": "FLOAT64",
+              "mode": "NULLABLE"
+            },
+            {
+              "name": "score",
+              "type": "FLOAT64",
+              "mode": "NULLABLE"
+            }
+          ]
+        },
+        {
+          "name": "language",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "categories",
+          "type": "RECORD",
+          "mode": "REPEATED",
+          "fields": [
+            {
+              "name": "name",
+              "type": "STRING",
+              "mode": "NULLABLE"
+            },
+            {
+              "name": "confidence",
+              "type": "FLOAT64",
+              "mode": "NULLABLE"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "permissionLevel",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "name",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "accountNumber",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "accountName",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "state",
+      "type": "RECORD",
+      "mode": "NULLABLE",
+      "fields": [
+        {
+          "name": "status",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "vettedStatus",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        }
+      ]
+    },
+    {
+      "name": "role",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "type",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    }
+  ],
+  "reviews": [
+    {
+      "name": "comment",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "updateTime",
+      "type": "TIMESTAMP",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "name",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "reviewId",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "starRating",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "reviewer",
+      "type": "RECORD",
+      "mode": "NULLABLE",
+      "fields": [
+        {
+          "name": "profilePhotoUrl",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "displayName",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        }
+      ]
+    },
+    {
+      "name": "createTime",
+      "type": "TIMESTAMP",
+      "mode": "NULLABLE"
+    }
+  ],
+  "locations": [
+    {
+      "name": "languageCode",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "websiteUrl",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "additionalCategories",
+      "type": "RECORD",
+      "mode": "REPEATED",
+      "fields": [
+        {
+          "name": "displayName",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "categoryId",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        }
+      ]
+    },
+    {
+      "name": "openInfo",
+      "type": "RECORD",
+      "mode": "NULLABLE",
+      "fields": [
+        {
+          "name": "status",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "canReopen",
+          "type": "BOOLEAN",
+          "mode": "NULLABLE"
+        }
+      ]
+    },
+    {
+      "name": "name",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "serviceArea",
+      "type": "RECORD",
+      "mode": "NULLABLE",
+      "fields": [
+        {
+          "name": "businessType",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "radius",
+          "type": "RECORD",
+          "mode": "NULLABLE",
+          "fields": [
+            {
+              "name": "latlng",
+              "type": "RECORD",
+              "mode": "NULLABLE",
+              "fields": [
+                {
+                  "name": "latitude",
+                  "type": "FLOAT64",
+                  "mode": "NULLABLE"
+                },
+                {
+                  "name": "longitude",
+                  "type": "FLOAT64",
+                  "mode": "NULLABLE"
+                }
+              ]
+            },
+            {
+              "name": "radiusKm",
+              "type": "INT64",
+              "mode": "NULLABLE"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "locationKey",
+      "type": "RECORD",
+      "mode": "NULLABLE",
+      "fields": [
+        {
+          "name": "placeId",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "requestId",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        }
+      ]
+    },
+    {
+      "name": "locationName",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "primaryPhone",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "address",
+      "type": "RECORD",
+      "mode": "NULLABLE",
+      "fields": [
+        {
+          "name": "languageCode",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "locality",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "regionCode",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "administrativeArea",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "addressLines",
+          "type": "STRING",
+          "mode": "REPEATED"
+        },
+        {
+          "name": "postalCode",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        }
+      ]
+    },
+    {
+      "name": "metadata",
+      "type": "RECORD",
+      "mode": "NULLABLE",
+      "fields": [
+        {
+          "name": "newReviewUrl",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "mapsUrl",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        }
+      ]
+    },
+    {
+      "name": "primaryCategory",
+      "type": "RECORD",
+      "mode": "NULLABLE",
+      "fields": [
+        {
+          "name": "displayName",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "categoryId",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        }
+      ]
+    },
+    {
+      "name": "locationState",
+      "type": "RECORD",
+      "mode": "NULLABLE",
+      "fields": [
+        {
+          "name": "canUpdate",
+          "type": "BOOLEAN",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "isPublished",
+          "type": "BOOLEAN",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "isGoogleUpdated",
+          "type": "BOOLEAN",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "canDelete",
+          "type": "BOOLEAN",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "isVerified",
+          "type": "BOOLEAN",
+          "mode": "NULLABLE"
+        }
+      ]
+    }
+  ]
+}
