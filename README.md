@@ -2,7 +2,7 @@
 
 # Alligator
 
-This tool is a Python solution to showcase an integration between the Google My Business API and the Natural Language Processing API.
+This tool is a Python solution to showcase an integration between the Google My Business API and the Natural Language Processing API. It downloads all the reviews for a Google My Business account and processes each review's content with the Natural Language Processing API to generate a sentiment score for analysis.
 
 ## Client Library Installation
 
@@ -29,6 +29,8 @@ Execute the script to start the process of retrieving the reviews for all availa
 
 `$ python main.py --project_id=<PROJECT_ID>`
 
+The script generates 4 tables in an `alligator` BigQuery dataset: `reviews`, `sentiments`, `accounts`, and `locations`.
+
 ## Useage of the CLI
 
 Useage:
@@ -53,3 +55,8 @@ Optional arguments:
                       reviews for a project
 -v, --verbose         increase output verbosity
 ```
+
+## Authors
+
+Tony Coconate (coconate@google.com) - Google
+David Harcombe (davidharcombe@google.com) - Google
