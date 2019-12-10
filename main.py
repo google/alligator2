@@ -22,7 +22,7 @@ from api import API
 class Alligator():
 
   @classmethod
-  def sentiment_analysis_for_all_reviews(cls, project_id):
+  def sentiment_only(cls, project_id):
     api = API(project_id)
     api.sentiments()
 
@@ -30,6 +30,7 @@ class Alligator():
   def for_account_and_location(cls, project_id, account_id, location_id):
     api = API(project_id)
     api.reviews(u"accounts/{}/locations/{}".format(account_id, location_id))
+    api.sentiments()
 
   @classmethod
   def for_account(cls, project_id, account_id):
@@ -39,6 +40,8 @@ class Alligator():
     for location in locations:
       location_name = location.get("name")
       api.reviews(location_name)
+
+    api.sentiments()
 
   @classmethod
   def all(cls, project_id):
@@ -52,6 +55,8 @@ class Alligator():
       for location in locations:
         location_name = location.get("name")
         api.reviews(location_name)
+
+    api.sentiments()
 
 
 def main(argv):
@@ -100,7 +105,7 @@ def main(argv):
 
   if sentiment_only:
     print("Running sentiment analysis for all reviews in BigQuery...")
-    Alligator.sentiment_analysis_for_all_reviews(project_id)
+    Alligator.sentiment_only(project_id)
     sys.exit()
 
   print("Loading all Google My Business reviews into BigQuery...")

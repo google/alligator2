@@ -34,14 +34,8 @@ SCOPES = [
 DATASET_ID = "alligator"
 MAX_RETRIES = 10
 MIN_TOKENS = 20
-BATCH_SIZE = 2000
 
 logging.getLogger("googleapiclient.discovery_cache").setLevel(logging.CRITICAL)
-
-
-def batch(l, n=BATCH_SIZE):
-  for i in range(0, len(l), n):
-    yield l[i:i + n]
 
 
 class API(object):
