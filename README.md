@@ -58,5 +58,5 @@ Optional arguments:
 
 ## Authors
 
-Tony Coconate (coconate@google.com) - Google
-David Harcombe (davidharcombe@google.com) - Google
+- Tony Coconate (coconate@google.com) - Google
+- David Harcombe (davidharcombe@google.com) - Google
