@@ -1,8 +1,8 @@
 **This is not an officially supported Google product. It is a reference implementation.**
 
-# Alligator
+# Alligator 2.0
 
-This tool is a Python solution to showcase an integration between the Google My Business API and the Natural Language Processing API. It downloads all the reviews for a Google My Business account and processes each review's content with the Natural Language Processing API to generate a sentiment score for analysis.
+This tool is a Python solution to showcase an integration between the Google My Business API and the Cloud Natural Language API. It downloads all the reviews for a Google My Business account and processes each review's content with the Cloud Natural Language API to generate a sentiment score for analysis.
 
 ## Client Library Installation
 
@@ -13,6 +13,12 @@ Install the required dependencies
 ## Set up the Google Cloud Project
 
 Follow the steps to **Enable the API** within the [basic setup guide](https://developers.google.com/my-business/content/basic-setup) and create the necessary OAuth2 Credentials required for the next steps.
+
+Go to [Enable the Cloud Natural Language API](https://console.cloud.google.com/flows/enableapi?apiid=language.googleapis.com).
+
+Go to [Enable the BigQuery API](https://console.cloud.google.com/flows/enableapi?apiid=bigquery).
+
+Please note that BigQuery provides a [sandbox](https://cloud.google.com/bigquery/docs/sandbox) if you do not want to provide a credit card or enable billing for your project. The steps in this topic work for a project whether or not your project has billing enabled. If you optionally want to enable billing, see [Learn how to enable billing](https://cloud.google.com/billing/docs/how-to/modify-project).
 
 ## Install OAuth2 Credentials
 
