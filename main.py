@@ -22,19 +22,23 @@ from api import API
 class Alligator():
 
   @classmethod
-  def sentiment_only(cls, project_id):
-    api = API(project_id)
+  def sentiment_only(cls, project_id, console_auth=False):
+    api = API(project_id, console_auth=console_auth)
     api.sentiments()
 
   @classmethod
-  def for_account_and_location(cls, project_id, account_id, location_id):
-    api = API(project_id)
+  def for_account_and_location(cls,
+                               project_id,
+                               account_id,
+                               location_id,
+                               console_auth=False):
+    api = API(project_id, console_auth=console_auth)
     api.reviews(u"accounts/{}/locations/{}".format(account_id, location_id))
     api.sentiments()
 
   @classmethod
-  def for_account(cls, project_id, account_id):
-    api = API(project_id)
+  def for_account(cls, project_id, account_id, console_auth=False):
+    api = API(project_id, console_auth=console_auth)
     locations = api.locations(u"accounts/{}".format(account_id))
 
     for location in locations:
@@ -44,8 +48,8 @@ class Alligator():
     api.sentiments()
 
   @classmethod
-  def all(cls, project_id):
-    api = API(project_id)
+  def all(cls, project_id, console_auth=False):
+    api = API(project_id, console_auth=console_auth)
     accounts = api.accounts()
 
     for account in accounts:
@@ -85,10 +89,16 @@ def main(argv):
       help="process and store the sentiment of all available reviews for a project",
       action="store_true")
   parser.add_argument(
+      "--noauth_local_webserver",
+      help="run the authentication flow in a console without browser",
+      action="store_true")
+
+  parser.add_argument(
       "-v", "--verbose", help="increase output verbosity", action="store_true")
   args = parser.parse_args()
 
   verbose = args.verbose
+  console_auth = args.noauth_local_webserver
   sentiment_only = args.sentiment_only
   project_id = args.project_id
   account_id = args.account_id
@@ -105,16 +115,17 @@ def main(argv):
 
   if sentiment_only:
     print("Running sentiment analysis for all reviews in BigQuery...")
-    Alligator.sentiment_only(project_id)
+    Alligator.sentiment_only(project_id, console_auth=console_auth)
     sys.exit()
 
   print("Loading all Google My Business reviews into BigQuery...")
   if account_id and location_id:
-    Alligator.for_account_and_location(project_id, account_id, location_id)
+    Alligator.for_account_and_location(
+        project_id, account_id, location_id, console_auth=console_auth)
   elif account_id:
-    Alligator.for_account(project_id, account_id)
+    Alligator.for_account(project_id, account_id, console_auth=console_auth)
   else:
-    Alligator.all(project_id)
+    Alligator.all(project_id, console_auth=console_auth)
 
   print("Done.")
 
