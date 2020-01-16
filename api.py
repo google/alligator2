@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import argparse
 import json
 import logging
 import os
-import sys
 
 from googleapiclient import discovery
 from googleapiclient.http import build_http
@@ -40,7 +40,7 @@ logging.getLogger("googleapiclient.discovery_cache").setLevel(logging.CRITICAL)
 
 class API(object):
 
-  def __init__(self, project_id):
+  def __init__(self, project_id, console_auth=False):
     client_secrets = os.path.join(
         os.path.dirname(__file__), CLIENT_SECRETS_FILE)
 
@@ -53,7 +53,13 @@ class API(object):
     credentials = storage.get()
 
     if credentials is None or credentials.invalid:
-      credentials = tools.run_flow(flow, storage)
+      flags = None
+      if console_auth:
+        flags = argparse.Namespace(
+            noauth_local_webserver=True,
+            logging_level=logging.getLevelName(
+                logging.getLogger().getEffectiveLevel()))
+      credentials = tools.run_flow(flow, storage, flags=flags)
 
     http = credentials.authorize(http=build_http())
 
