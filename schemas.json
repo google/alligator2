@@ -397,6 +397,23 @@
       "name": "createTime",
       "type": "TIMESTAMP",
       "mode": "NULLABLE"
+    },
+    {
+      "name": "reviewReply",
+      "type": "RECORD",
+      "mode": "NULLABLE",
+      "fields": [
+        {
+          "name": "comment",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "updateTime",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        }
+      ]
     }
   ],
   "locations": [
@@ -409,6 +426,74 @@
       "name": "websiteUrl",
       "type": "STRING",
       "mode": "NULLABLE"
+    },
+    {
+      "name": "regularHours",
+      "type": "RECORD",
+      "mode": "NULLABLE",
+      "fields": [
+        {
+          "name": "periods",
+          "type": "RECORD",
+          "mode": "REPEATED",
+          "fields": [
+            {
+              "name": "openDay",
+              "type": "STRING",
+              "mode": "NULLABLE"
+            },
+            {
+              "name": "openTime",
+              "type": "STRING",
+              "mode": "NULLABLE"
+            },
+            {
+              "name": "closeDay",
+              "type": "STRING",
+              "mode": "NULLABLE"
+            },
+            {
+              "name": "closeTime",
+              "type": "STRING",
+              "mode": "NULLABLE"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "specialHours",
+      "type": "RECORD",
+      "mode": "NULLABLE",
+      "fields": [
+        {
+          "name": "periods",
+          "type": "RECORD",
+          "mode": "REPEATED",
+          "fields": [
+            {
+              "name": "openDay",
+              "type": "STRING",
+              "mode": "NULLABLE"
+            },
+            {
+              "name": "openTime",
+              "type": "STRING",
+              "mode": "NULLABLE"
+            },
+            {
+              "name": "closeDay",
+              "type": "STRING",
+              "mode": "NULLABLE"
+            },
+            {
+              "name": "closeTime",
+              "type": "STRING",
+              "mode": "NULLABLE"
+            }
+          ]
+        }
+      ]
     },
     {
       "name": "additionalCategories",
@@ -491,6 +576,11 @@
       ]
     },
     {
+      "name": "labels",
+      "type": "STRING",
+      "mode": "REPEATED"
+    },
+    {
       "name": "locationKey",
       "type": "RECORD",
       "mode": "NULLABLE",
@@ -506,6 +596,11 @@
           "mode": "NULLABLE"
         }
       ]
+    },
+    {
+      "name": "storeCode",
+      "type": "STRING",
+      "mode": "NULLABLE"
     },
     {
       "name": "locationName",
@@ -615,6 +710,11 @@
         },
         {
           "name": "isVerified",
+          "type": "BOOLEAN",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "isDisabled",
           "type": "BOOLEAN",
           "mode": "NULLABLE"
         }
