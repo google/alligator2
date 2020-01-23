@@ -33,6 +33,7 @@ class Alligator():
                                location_id,
                                console_auth=False):
     api = API(project_id, console_auth=console_auth)
+    api.insights(u"accounts/{}/locations/{}".format(account_id, location_id))
     api.reviews(u"accounts/{}/locations/{}".format(account_id, location_id))
     api.sentiments()
 
@@ -43,6 +44,7 @@ class Alligator():
 
     for location in locations:
       location_name = location.get("name")
+      api.insights(location_name)
       api.reviews(location_name)
 
     api.sentiments()
@@ -58,6 +60,7 @@ class Alligator():
 
       for location in locations:
         location_name = location.get("name")
+        api.insights(location_name)
         api.reviews(location_name)
 
     api.sentiments()
