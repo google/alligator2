@@ -16,6 +16,9 @@ import argparse
 import json
 import logging
 import os
+import re
+from datetime import datetime
+from datetime import timedelta
 
 from googleapiclient import discovery
 from googleapiclient.http import build_http
@@ -191,6 +194,48 @@ class API(object):
     except HttpError as err:
       if err.resp.status != 400:
         raise
+
+  def insights(self, location_id):
+    start_time = (datetime.now() - timedelta(days=540)).replace(
+        hour=0, minute=0, second=0,
+        microsecond=0).strftime("%Y-%m-%dT%H:%M:%SZ")
+    end_time = (datetime.now() - timedelta(days=5)).replace(
+        hour=0, minute=0, second=0,
+        microsecond=0).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    query = {
+        "locationNames": [location_id],
+        "basicRequest": {
+            "metricRequests": {
+                "metric": "ALL",
+                "options": ["AGGREGATED_DAILY"]
+            },
+            "timeRange": {
+                "startTime": start_time,
+                "endTime": end_time
+            }
+        },
+    }
+
+    data = []
+    account_id = re.search("(accounts/[0-9]+)/locations/[0-9]+", location_id,
+                           re.IGNORECASE).group(1)
+
+    response_json = self.gmb_service.accounts().locations().reportInsights(
+        name=account_id, body=query).execute(num_retries=MAX_RETRIES)
+    logging.info(response_json)
+
+    if "locationMetrics" in response_json:
+      for line in response_json.get("locationMetrics"):
+        line["name"] = line.get("locationName")
+        data.append(line)
+
+      self.to_bigquery(table_name="insights", data=data)
+
+    else:
+      logging.warn("No insights reported for %s", location_id)
+
+    return data
 
   def ensure_dataset_exists(self):
     if self.dataset_exists:
