@@ -33,8 +33,17 @@ class Alligator():
                                location_id,
                                console_auth=False):
     api = API(project_id, console_auth=console_auth)
-    api.insights(u"accounts/{}/locations/{}".format(account_id, location_id))
-    api.reviews(u"accounts/{}/locations/{}".format(account_id, location_id))
+
+    location_name = u"accounts/{}/locations/{}".format(account_id, location_id)
+
+    api.locations(
+        u"accounts/{}".format(account_id), location_id=location_name)
+
+    api.insights(location_name)
+    api.directions(location_name)
+    api.hourly_calls(location_name)
+    api.reviews(location_name)
+
     api.sentiments()
 
   @classmethod
@@ -45,6 +54,8 @@ class Alligator():
     for location in locations:
       location_name = location.get("name")
       api.insights(location_name)
+      api.directions(location_name)
+      api.hourly_calls(location_name)
       api.reviews(location_name)
 
     api.sentiments()
@@ -61,6 +72,8 @@ class Alligator():
       for location in locations:
         location_name = location.get("name")
         api.insights(location_name)
+        api.directions(location_name)
+        api.hourly_calls(location_name)
         api.reviews(location_name)
 
     api.sentiments()
@@ -112,9 +125,9 @@ def main(argv):
   if verbose:
     logging.basicConfig(level=logging.DEBUG)
 
-  logging.info(u"Project ID:\t{}".format(project_id))
-  logging.info(u"Account ID:\t{}".format(account_id))
-  logging.info(u"Location ID:\t{}".format(location_id))
+  logging.info(u"Project ID:\t%s", project_id)
+  logging.info(u"Account ID:\t%s", account_id)
+  logging.info(u"Location ID:\t%s", location_id)
 
   if sentiment_only:
     print("Running sentiment analysis for all reviews in BigQuery...")
