@@ -47,7 +47,7 @@ logging.getLogger("googleapiclient.discovery_cache").setLevel(logging.CRITICAL)
 
 class API(object):
 
-  def __init__(self, project_id, console_auth=False):
+  def __init__(self, project_id):
     client_secrets = os.path.join(
         os.path.dirname(__file__), CLIENT_SECRETS_FILE)
 
@@ -60,12 +60,10 @@ class API(object):
     credentials = storage.get()
 
     if credentials is None or credentials.invalid:
-      flags = None
-      if console_auth:
-        flags = argparse.Namespace(
-            noauth_local_webserver=True,
-            logging_level=logging.getLevelName(
-                logging.getLogger().getEffectiveLevel()))
+      flags = argparse.Namespace(
+          noauth_local_webserver=True,
+          logging_level=logging.getLevelName(
+              logging.getLogger().getEffectiveLevel()))
       credentials = tools.run_flow(flow, storage, flags=flags)
 
     http = credentials.authorize(http=build_http())
