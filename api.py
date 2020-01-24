@@ -38,6 +38,10 @@ DATASET_ID = "alligator"
 MAX_RETRIES = 10
 MIN_TOKENS = 20
 
+INSIGHTS_DAYS_BACK = 540
+CALLS_DAYS_BACK = 7
+DIRECTIONS_NUM_DAYS = "SEVEN"
+
 logging.getLogger("googleapiclient.discovery_cache").setLevel(logging.CRITICAL)
 
 
@@ -102,23 +106,28 @@ class API(object):
 
     return data
 
-  def locations(self, account_id):
+  def locations(self, account_id, location_id=None):
     data = []
     page_token = None
 
-    while True:
-      response_json = self.gmb_service.accounts().locations().list(
-          parent=account_id,
-          pageToken=page_token).execute(num_retries=MAX_RETRIES)
+    if not location_id:
+      while True:
+        response_json = self.gmb_service.accounts().locations().list(
+            parent=account_id,
+            pageToken=page_token).execute(num_retries=MAX_RETRIES)
 
+        data = data + (response_json.get("locations") or [])
+
+        page_token = response_json.get("nextPageToken")
+        if not page_token:
+          break
+      
+    else:
+      response_json = self.gmb_service.accounts().locations().get(
+          name=location_id).execute(num_retries=MAX_RETRIES)
       data = data + (response_json.get("locations") or [])
 
-      page_token = response_json.get("nextPageToken")
-      if not page_token:
-        break
-
     logging.info(json.dumps(data, indent=2))
-
     self.to_bigquery(table_name="locations", data=data)
 
     return data
@@ -196,12 +205,9 @@ class API(object):
         raise
 
   def insights(self, location_id):
-    start_time = (datetime.now() - timedelta(days=540)).replace(
-        hour=0, minute=0, second=0,
-        microsecond=0).strftime("%Y-%m-%dT%H:%M:%SZ")
     end_time = (datetime.now() - timedelta(days=5)).replace(
-        hour=0, minute=0, second=0,
-        microsecond=0).strftime("%Y-%m-%dT%H:%M:%SZ")
+        hour=0, minute=0, second=0, microsecond=0)
+    start_time = end_time - timedelta(days=INSIGHTS_DAYS_BACK)
 
     query = {
         "locationNames": [location_id],
@@ -211,8 +217,8 @@ class API(object):
                 "options": ["AGGREGATED_DAILY"]
             },
             "timeRange": {
-                "startTime": start_time,
-                "endTime": end_time
+                "startTime": start_time.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "endTime": end_time.strftime("%Y-%m-%dT%H:%M:%SZ")
             }
         },
     }
@@ -223,17 +229,100 @@ class API(object):
 
     response_json = self.gmb_service.accounts().locations().reportInsights(
         name=account_id, body=query).execute(num_retries=MAX_RETRIES)
-    logging.info(response_json)
 
     if "locationMetrics" in response_json:
       for line in response_json.get("locationMetrics"):
         line["name"] = line.get("locationName")
         data.append(line)
 
+      logging.info(json.dumps(data, indent=2))
       self.to_bigquery(table_name="insights", data=data)
 
     else:
       logging.warn("No insights reported for %s", location_id)
+
+    return data
+
+  def directions(self, location_id):
+    query = {
+        "locationNames": [location_id],
+        "drivingDirectionsRequest": {
+            "numDays": DIRECTIONS_NUM_DAYS,
+            "language_code": "es_ES"
+        }
+    }
+
+    data = []
+    account_id = re.search("(accounts/[0-9]+)/locations/[0-9]+", location_id,
+                           re.IGNORECASE).group(1)
+
+    response_json = self.gmb_service.accounts().locations().reportInsights(
+        name=account_id, body=query).execute(num_retries=MAX_RETRIES)
+
+    if "locationDrivingDirectionMetrics" in response_json:
+      for line in response_json.get("locationDrivingDirectionMetrics"):
+        line["name"] = line.get("locationName")
+        data.append(line)
+
+      logging.info(json.dumps(data, indent=2))
+      self.to_bigquery(table_name="directions", data=data)
+
+    return data
+
+  def hourly_calls(self, location_id):
+    query = {
+        "locationNames": [location_id],
+        "basicRequest": {
+            "metricRequests": [{
+                "metric": "ACTIONS_PHONE",
+                "options": ["BREAKDOWN_HOUR_OF_DAY"]
+            }],
+            "timeRange": {}
+        },
+    }
+
+    account_id = re.search("(accounts/[0-9]+)/locations/[0-9]+", location_id,
+                           re.IGNORECASE).group(1)
+
+    limit_end_time = (datetime.now() - timedelta(days=5)).replace(
+        hour=0, minute=0, second=0, microsecond=0)
+    start_time = limit_end_time - timedelta(days=CALLS_DAYS_BACK)
+
+    data = []
+
+    while start_time < limit_end_time:
+      end_time = start_time + timedelta(days=1)
+
+      start_time_string = start_time.strftime("%Y-%m-%dT%H:%M:%SZ")
+      end_time_string = end_time.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+      query["basicRequest"]["timeRange"] = {
+          "startTime": start_time_string,
+          "endTime": end_time_string
+      }
+
+      response_json = self.gmb_service.accounts().locations().reportInsights(
+          name=account_id, body=query).execute(num_retries=MAX_RETRIES)
+
+      if "locationMetrics" in response_json:
+        for line in response_json.get("locationMetrics"):
+          line["name"] = "{}/{}".format(
+              line.get("locationName"), start_time_string)
+          if "metricValues" in line:
+            for metric_values in line.get("metricValues"):
+              if "dimensionalValues" in metric_values:
+                for values in metric_values.get("dimensionalValues"):
+                  values["timeDimension"]["timeRange"] = {
+                      "startTime": start_time_string
+                  }
+
+          data.append(line)
+
+      start_time = start_time + timedelta(days=1)
+
+    if data:
+      logging.info(json.dumps(data, indent=2))
+      self.to_bigquery(table_name="hourly_calls", data=data)
 
     return data
 
