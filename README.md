@@ -37,7 +37,7 @@ Execute the script to start the process of retrieving the reviews for all availa
 
 The script generates a number of tables in an `alligator` BigQuery dataset.
 
-## Useage of the CLI
+## Usage of the CLI
 
 Usage:
 
