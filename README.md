@@ -39,7 +39,7 @@ The script generates a number of tables in an `alligator` BigQuery dataset.
 
 ## Useage of the CLI
 
-Useage:
+Usage:
 
 ```
 $ python main.py [-h] -p PROJECT_ID [-a ACCOUNT_ID] [-l LOCATION_ID]
