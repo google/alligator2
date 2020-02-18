@@ -119,7 +119,7 @@ class API(object):
         page_token = response_json.get("nextPageToken")
         if not page_token:
           break
-      
+
     else:
       response_json = self.gmb_service.accounts().locations().get(
           name=location_id).execute(num_retries=MAX_RETRIES)
@@ -383,6 +383,9 @@ class API(object):
             "projectId": self.PROJECT_ID,
             "datasetId": DATASET_ID,
             "tableId": table_name
+        },
+        "timePartitioning": {
+            "type": 'DAY'
         }
     }
 
