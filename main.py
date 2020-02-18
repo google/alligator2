@@ -18,6 +18,12 @@ import sys
 
 from api import API
 
+INSIGHTS = 'insights'
+REVIEWS = 'reviews'
+SENTIMENT = 'sentiment'
+DIRECTIONS = 'directions'
+HOURLY_CALLS = 'hourly_calls'
+
 
 class Alligator():
 
@@ -27,40 +33,46 @@ class Alligator():
     api.sentiments()
 
   @classmethod
-  def for_account_and_location(cls,
-                               project_id,
-                               account_id,
-                               location_id):
+  def for_account_and_location(cls, project_id, account_id, location_id, flags):
     api = API(project_id)
 
     location_name = u"accounts/{}/locations/{}".format(account_id, location_id)
 
-    api.locations(
-        u"accounts/{}".format(account_id), location_id=location_name)
+    api.locations(u"accounts/{}".format(account_id), location_id=location_name)
 
-    api.insights(location_name)
-    api.directions(location_name)
-    api.hourly_calls(location_name)
-    api.reviews(location_name)
+    if flags[INSIGHTS]:
+      api.insights(location_name)
+    if flags[DIRECTIONS]:
+      api.directions(location_name)
+    if flags[HOURLY_CALLS]:
+      api.hourly_calls(location_name)
+    if flags[REVIEWS]:
+      api.reviews(location_name)
 
-    api.sentiments()
+    if flags[SENTIMENT]:
+      api.sentiments()
 
   @classmethod
-  def for_account(cls, project_id, account_id):
+  def for_account(cls, project_id, account_id, flags):
     api = API(project_id)
     locations = api.locations(u"accounts/{}".format(account_id))
 
     for location in locations:
       location_name = location.get("name")
-      api.insights(location_name)
-      api.directions(location_name)
-      api.hourly_calls(location_name)
-      api.reviews(location_name)
+      if flags[INSIGHTS]:
+        api.insights(location_name)
+      if flags[DIRECTIONS]:
+        api.directions(location_name)
+      if flags[HOURLY_CALLS]:
+        api.hourly_calls(location_name)
+      if flags[REVIEWS]:
+        api.reviews(location_name)
 
-    api.sentiments()
+    if flags[SENTIMENT]:
+      api.sentiments()
 
   @classmethod
-  def all(cls, project_id):
+  def all(cls, project_id, flags):
     api = API(project_id)
     accounts = api.accounts()
 
@@ -70,12 +82,17 @@ class Alligator():
 
       for location in locations:
         location_name = location.get("name")
-        api.insights(location_name)
-        api.directions(location_name)
-        api.hourly_calls(location_name)
-        api.reviews(location_name)
+        if flags[INSIGHTS]:
+          api.insights(location_name)
+        if flags[DIRECTIONS]:
+          api.directions(location_name)
+        if flags[HOURLY_CALLS]:
+          api.hourly_calls(location_name)
+        if flags[REVIEWS]:
+          api.reviews(location_name)
 
-    api.sentiments()
+    if flags[SENTIMENT]:
+      api.sentiments()
 
 
 def main(argv):
@@ -99,19 +116,47 @@ def main(argv):
       help="retrieve and store all Google My Business reviews for a given Location ID (--account_id is also required)"
   )
   parser.add_argument(
+      "--no_insights",
+      help="skips the insights extraction process for this run",
+      action="store_true")
+  parser.add_argument(
+      "--no_reviews",
+      help="skips the reviews extraction process for this run",
+      action="store_true")
+  parser.add_argument(
+      "--no_sentiment",
+      help="skips the sentiment extraction process for this run",
+      action="store_true")
+  parser.add_argument(
+      "--no_directions",
+      help="skips the directions extraction process for this run",
+      action="store_true")
+  parser.add_argument(
+      "--no_hourly_calls",
+      help="skips the hourly calls extraction process for this run",
+      action="store_true")
+  parser.add_argument(
       "-s",
       "--sentiment_only",
-      help="process and store the sentiment of all available reviews for a project",
+      help="process and store the sentiment of all available reviews for a project (if --no-sentiment is provided, no action is performed)",
       action="store_true")
   parser.add_argument(
       "-v", "--verbose", help="increase output verbosity", action="store_true")
   args = parser.parse_args()
 
-  verbose = args.verbose
-  sentiment_only = args.sentiment_only
   project_id = args.project_id
   account_id = args.account_id
   location_id = args.location_id
+
+  flags = {}
+  flags[INSIGHTS] = not args.no_insights
+  flags[REVIEWS] = not args.no_reviews
+  flags[SENTIMENT] = not args.no_sentiment
+  flags[DIRECTIONS] = not args.no_directions
+  flags[HOURLY_CALLS] = not args.no_hourly_calls
+
+  sentiment_only = args.sentiment_only
+  verbose = args.verbose
 
   sys.argv.clear()
 
@@ -123,18 +168,23 @@ def main(argv):
   logging.info(u"Location ID:\t%s", location_id)
 
   if sentiment_only:
-    print("Running sentiment analysis for all reviews in BigQuery...")
-    Alligator.sentiment_only(project_id)
+    if flags[SENTIMENT]:
+      print("Running sentiment analysis for all reviews in BigQuery...")
+      Alligator.sentiment_only(project_id)
+    else:
+      print(
+          "No action will be performed as --no_sentiment and --sentiment_only flags have been provided."
+      )
     sys.exit()
 
-  print("Loading all Google My Business reviews into BigQuery...")
+  print("Loading Google My Business reviews into BigQuery...")
   if account_id and location_id:
-    Alligator.for_account_and_location(
-        project_id, account_id, location_id)
+    Alligator.for_account_and_location(project_id, account_id, location_id,
+                                       flags)
   elif account_id:
-    Alligator.for_account(project_id, account_id)
+    Alligator.for_account(project_id, account_id, flags)
   else:
-    Alligator.all(project_id)
+    Alligator.all(project_id, flags)
 
   print("Done.")
 
