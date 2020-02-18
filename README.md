@@ -35,14 +35,16 @@ Execute the script to start the process of retrieving the reviews for all availa
 
 `$ python main.py --project_id=<PROJECT_ID>`
 
-The script generates 4 tables in an `alligator` BigQuery dataset: `reviews`, `sentiments`, `accounts`, and `locations`.
+The script generates a number of tables in an `alligator` BigQuery dataset.
 
 ## Useage of the CLI
 
 Useage:
 
 ```
-$ python main.py [-h] -p PROJECT_ID [-a ACCOUNT_ID] [-l LOCATION_ID] [-s] [-v]
+$ python main.py [-h] -p PROJECT_ID [-a ACCOUNT_ID] [-l LOCATION_ID]
+                 [--no_insights] [--no_reviews] [--no_sentiment]
+                 [--no_directions] [--no_hourly_calls] [--sentiment_only] [-v]
 ```
 
 Optional arguments:
@@ -57,12 +59,19 @@ Optional arguments:
 -l LOCATION_ID, --location_id LOCATION_ID
                       retrieve and store all Google My Business reviews for
                       a given Location ID (--account_id is also required)
--s, --sentiment_only  process and store the sentiment of all available
-                      reviews for a project
+--no_insights         skip the insights processing and storage
+--no_reviews          skip the reviews processing and storage
+--no_sentiment        skip the sentiment processing and storage
+--no_directions       skip the directions processing and storage
+--no_hourly_calls     skip the hourly calls processing and storage
+--sentiment_only      only process and store the sentiment of all available
+                      reviews (if --no-sentiment is provided, no action is
+                      performed)
 -v, --verbose         increase output verbosity
 ```
 
 ## Authors
 
 - Tony Coconate (coconate@google.com) - Google
+- Miguel Fernandes (miguelfc@google.com) – Google
 - David Harcombe (davidharcombe@google.com) - Google
