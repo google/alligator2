@@ -117,28 +117,27 @@ def main(argv):
   )
   parser.add_argument(
       "--no_insights",
-      help="skips the insights extraction process for this run",
+      help="skip the insights processing and storage",
       action="store_true")
   parser.add_argument(
       "--no_reviews",
-      help="skips the reviews extraction process for this run",
+      help="skip the reviews processing and storage",
       action="store_true")
   parser.add_argument(
       "--no_sentiment",
-      help="skips the sentiment extraction process for this run",
+      help="skip the sentiment processing and storage",
       action="store_true")
   parser.add_argument(
       "--no_directions",
-      help="skips the directions extraction process for this run",
+      help="skip the directions processing and storage",
       action="store_true")
   parser.add_argument(
       "--no_hourly_calls",
-      help="skips the hourly calls extraction process for this run",
+      help="skip the hourly calls processing and storage",
       action="store_true")
   parser.add_argument(
-      "-s",
       "--sentiment_only",
-      help="process and store the sentiment of all available reviews for a project (if --no-sentiment is provided, no action is performed)",
+      help="only process and store the sentiment of all available reviews (if --no-sentiment is provided, no action is performed)",
       action="store_true")
   parser.add_argument(
       "-v", "--verbose", help="increase output verbosity", action="store_true")
