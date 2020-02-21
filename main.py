@@ -41,19 +41,14 @@ class Alligator():
     api.locations(u"accounts/{}".format(account_id), location_id=location_name)
 
     if flags[INSIGHTS]:
-      logging.info("Insights...")
       api.insights(location_name)
     if flags[DIRECTIONS]:
-      logging.info("Directions...")
       api.directions(location_name)
     if flags[HOURLY_CALLS]:
-      logging.info("Hourly calls...")
       api.hourly_calls(location_name)
     if flags[REVIEWS]:
-      logging.info("Reviews...")
       api.reviews(location_name)
     if flags[SENTIMENT]:
-      logging.info("Sentiments...")
       api.sentiments()
 
   @classmethod
