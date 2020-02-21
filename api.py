@@ -37,7 +37,6 @@ SCOPES = [
 DATASET_ID = "alligator"
 MAX_RETRIES = 10
 MIN_TOKENS = 20
-
 INSIGHTS_DAYS_BACK = 540
 CALLS_DAYS_BACK = 7
 DIRECTIONS_NUM_DAYS = "SEVEN"
@@ -148,6 +147,9 @@ class API(object):
 
   def sentiments(self):
     page_token = None
+
+    self.ensure_dataset_exists()
+    self.ensure_table_exists(table_name="reviews")
 
     while True:
       response_json = self.bq_service.tabledata().list(
@@ -404,6 +406,9 @@ class API(object):
 
     rows = [{"json": line, "insertId": line.get("name")} for line in data]
     data = {"rows": rows, "ignoreUnknownValues": True}
+
+    logging.info(u"Inserting {} rows into table {}:{}.{}.".format(
+        len(rows), self.PROJECT_ID, DATASET_ID, table_name))
 
     self.bq_service.tabledata().insertAll(
         projectId=self.PROJECT_ID,

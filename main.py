@@ -41,15 +41,19 @@ class Alligator():
     api.locations(u"accounts/{}".format(account_id), location_id=location_name)
 
     if flags[INSIGHTS]:
+      logging.info("Insights...")
       api.insights(location_name)
     if flags[DIRECTIONS]:
+      logging.info("Directions...")
       api.directions(location_name)
     if flags[HOURLY_CALLS]:
+      logging.info("Hourly calls...")
       api.hourly_calls(location_name)
     if flags[REVIEWS]:
+      logging.info("Reviews...")
       api.reviews(location_name)
-
     if flags[SENTIMENT]:
+      logging.info("Sentiments...")
       api.sentiments()
 
   @classmethod
@@ -149,10 +153,10 @@ def main(argv):
 
   flags = {}
   flags[INSIGHTS] = not args.no_insights
-  flags[REVIEWS] = not args.no_reviews
-  flags[SENTIMENT] = not args.no_sentiment
   flags[DIRECTIONS] = not args.no_directions
   flags[HOURLY_CALLS] = not args.no_hourly_calls
+  flags[REVIEWS] = not args.no_reviews
+  flags[SENTIMENT] = not args.no_sentiment
 
   sentiment_only = args.sentiment_only
   verbose = args.verbose
@@ -177,6 +181,7 @@ def main(argv):
     sys.exit()
 
   print("Loading Google My Business reviews into BigQuery...")
+
   if account_id and location_id:
     Alligator.for_account_and_location(project_id, account_id, location_id,
                                        flags)
