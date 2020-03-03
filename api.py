@@ -40,6 +40,7 @@ MIN_TOKENS = 20
 INSIGHTS_DAYS_BACK = 540
 CALLS_DAYS_BACK = 7
 DIRECTIONS_NUM_DAYS = "SEVEN"
+BQ_TABLEDATA_INSERTALL_BATCHSIZE = 5000
 
 logging.getLogger("googleapiclient.discovery_cache").setLevel(logging.CRITICAL)
 
@@ -405,13 +406,21 @@ class API(object):
     self.ensure_table_exists(table_name)
 
     rows = [{"json": line, "insertId": line.get("name")} for line in data]
-    data = {"rows": rows, "ignoreUnknownValues": True}
 
-    logging.info(u"Inserting {} rows into table {}:{}.{}.".format(
-        len(rows), self.PROJECT_ID, DATASET_ID, table_name))
+    chunk_size = BQ_TABLEDATA_INSERTALL_BATCHSIZE
+    chunked_rows = [
+      rows[i * chunk_size:(i + 1) * chunk_size]
+      for i in range((len(rows) + chunk_size - 1) // chunk_size)
+    ]
 
-    self.bq_service.tabledata().insertAll(
+    for chunk in chunked_rows:
+      logging.info(u"Inserting {} rows into table {}:{}.{}.".format(
+        len(chunk), self.PROJECT_ID, DATASET_ID, table_name))
+
+      data_chunk = {"rows": chunk, "ignoreUnknownValues": True}
+
+      self.bq_service.tabledata().insertAll(
         projectId=self.PROJECT_ID,
         datasetId=DATASET_ID,
         tableId=table_name,
-        body=data).execute(num_retries=MAX_RETRIES)
+        body=data_chunk).execute(num_retries=MAX_RETRIES)
