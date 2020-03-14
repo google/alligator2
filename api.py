@@ -29,6 +29,7 @@ GMB_DISCOVERY_FILE = "gmb_discovery.json"
 CLIENT_SECRETS_FILE = "client_secrets.json"
 CREDENTIALS_STORAGE = "credentials.dat"
 SCHEMAS_FILE = "schemas.json"
+SENTIMENTS_LASTRUN_FILE = "sentiments_lastrun"
 SCOPES = [
     "https://www.googleapis.com/auth/business.manage",
     "https://www.googleapis.com/auth/bigquery",
@@ -40,6 +41,7 @@ MIN_TOKENS = 20
 INSIGHTS_DAYS_BACK = 540
 CALLS_DAYS_BACK = 7
 DIRECTIONS_NUM_DAYS = "SEVEN"
+BQ_JOBS_QUERY_MAXRESULTS_PER_PAGE = 1000
 BQ_TABLEDATA_INSERTALL_BATCHSIZE = 5000
 
 logging.getLogger("googleapiclient.discovery_cache").setLevel(logging.CRITICAL)
@@ -148,36 +150,97 @@ class API(object):
 
   def sentiments(self):
     page_token = None
+    lastrun = self.get_sentiments_lastrun()
 
     self.ensure_dataset_exists()
     self.ensure_table_exists(table_name="reviews")
 
-    while True:
-      response_json = self.bq_service.tabledata().list(
+    query = {
+      "query": """
+        SELECT 
+          comment,
+          name,
+          reviewId
+        FROM 
+          [{projectId}:{datasetId}.reviews]
+        WHERE 
+          comment IS NOT NULL
+          AND (
+            DATE(_PARTITIONTIME) > "{lastrun}"
+            OR
+              _PARTITIONTIME IS NULL)
+      """.format(
           projectId=self.PROJECT_ID,
           datasetId=DATASET_ID,
-          tableId="reviews",
-          selectedFields="reviewId,name,comment",
-          pageToken=page_token).execute(num_retries=MAX_RETRIES)
+          lastrun=lastrun),
+      "maxResults": BQ_JOBS_QUERY_MAXRESULTS_PER_PAGE
+    }
 
-      rows = response_json.get("rows") or []
-      sentiments = []
+    response_json = self.bq_service.jobs().query(
+        projectId=self.PROJECT_ID,
+        body=query).execute(num_retries=MAX_RETRIES)
 
-      for row in rows:
-        sentiment = {}
-        sentiment["name"] = row.get("f")[1].get("v")
-        sentiment["reviewId"] = row.get("f")[2].get("v")
-        sentiment["comment"] = row.get("f")[0].get("v")
-        sentiment["annotation"] = self.annotate_text(row.get("f")[0].get("v"))
+    rows = response_json.get("rows") or []
+    self.process_sentiments(rows)
+    
+    page_token = response_json.get("pageToken")
+    if page_token:
+      job_id = response_json.get("jobReference").get("jobId")
 
-        sentiments.append(sentiment)
+      while True:
+        response_json_job = self.bq_service.jobs().getQueryResults(
+            projectId=self.PROJECT_ID,
+            jobId=job_id,
+            maxResults=BQ_JOBS_QUERY_MAXRESULTS_PER_PAGE,
+            pageToken=page_token).execute(num_retries=MAX_RETRIES)
 
-      logging.info(json.dumps(sentiments, indent=2))
-      self.to_bigquery(table_name="sentiments", data=sentiments)
+        rows_job = response_json_job.get("rows") or []
+        self.process_sentiments(rows_job)
 
-      page_token = response_json.get("nextPageToken")
-      if not page_token:
-        break
+        page_token = response_json_job.get("pageToken")
+        if not page_token:
+          break
+
+    self.set_sentiments_lastrun()
+
+  def get_sentiments_lastrun(self):
+    lastrun_file_path = os.path.join(
+        os.path.dirname(__file__), SENTIMENTS_LASTRUN_FILE)
+    lastrun = datetime(year=1970, month=1, day=1).date()
+
+    try:
+      lastrun = datetime.fromtimestamp(os.path.getmtime(lastrun_file_path)).date()
+    except OSError:
+      logging.info("No previous run for sentiment analysis found. " + 
+          "Performing sentiment analysis on all available reviews.")
+  
+    return lastrun        
+
+  def process_sentiments(self, rows):
+    sentiments = []
+
+    for row in rows:
+      sentiment = {}
+      comment = row.get("f")[0].get("v")
+      sentiment["comment"] = comment
+      sentiment["name"] = row.get("f")[1].get("v")
+      sentiment["reviewId"] = row.get("f")[2].get("v")
+      sentiment["annotation"] = self.annotate_text(comment)
+
+      sentiments.append(sentiment)
+
+    logging.info(json.dumps(sentiments, indent=2))
+    self.to_bigquery(table_name="sentiments", data=sentiments)
+
+  def set_sentiments_lastrun(self):
+    lastrun_file_path = os.path.join(
+        os.path.dirname(__file__), SENTIMENTS_LASTRUN_FILE)
+    current_time = datetime.now().timestamp()
+
+    if os.path.isfile(lastrun_file_path):
+      os.utime(lastrun_file_path, (current_time, current_time))
+    else:
+      os.open(lastrun_file_path, os.O_CREAT)
 
   def annotate_text(self, content):
     if not content:
