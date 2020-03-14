@@ -178,8 +178,8 @@ def main(argv):
   print("Loading Google My Business reviews into BigQuery...")
 
   if account_id and location_id:
-    Alligator.for_account_and_location(project_id, account_id, location_id,
-                                       flags)
+    Alligator.for_account_and_location(
+        project_id, account_id, location_id, flags)
   elif account_id:
     Alligator.for_account(project_id, account_id, flags)
   else:

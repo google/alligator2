@@ -73,14 +73,16 @@ Optional arguments:
 --no_directions       skip the directions processing and storage
 --no_hourly_calls     skip the hourly calls processing and storage
 --sentiment_only      only process and store the sentiment of all available
-                      reviews (if --no-sentiment is provided, no action is
-                      performed)
+                      reviews since the last run (if --no-sentiment is
+                      provided, no action is performed)
 -v, --verbose         increase output verbosity
 ```
 
 ## Notes
 
 For the initial data load into BigQuery, a maximum of 18 months of insights data will be retrieved, up to 5 days prior to the current date. This is due to the posted 3-5 day delay on the data becoming available in the Google My Business API. For _phone calls_ and _driving directions_, only data from the last 7 days is retrieved. Finally, data is inserted into BigQuery with a batch size of 5000 to avoid running into API limits, especially when using the BigQuery Sandbox. These defaults are defined in [api.py](api.py) and can be tuned according to indiviual needs.
+
+Furthermore, _all_ available reviews in BigQuery will be used _only_ for the first run of the sentiment analysis. Once the analysis is complete, an empty file named `sentiments_lastrun` will be created in the application's root directory, and this file's modification timestamp will be used for subsequent sentiment analysis runs so that only non-analyzed reviews are taken into consideration. Delete the file to rerun the analysis on all available reviews.
 
 ## Authors
 
