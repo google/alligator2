@@ -67,6 +67,11 @@ Optional arguments:
 -l LOCATION_ID, --location_id LOCATION_ID
                       retrieve and store all Google My Business reviews for
                       a given Location ID (--account_id is also required)
+--language LANG
+                      the ISO-639-1 language code in which the Google My Business
+                      reviews are written (used for sentiment processing). See
+                      https://cloud.google.com/natural-language/docs/languages
+                      for a list of supported languages
 --no_insights         skip the insights processing and storage
 --no_reviews          skip the reviews processing and storage
 --no_sentiment        skip the sentiment processing and storage
@@ -83,6 +88,8 @@ Optional arguments:
 For the initial data load into BigQuery, a maximum of 18 months of insights data will be retrieved, up to 5 days prior to the current date. This is due to the posted 3-5 day delay on the data becoming available in the Google My Business API. For _phone calls_ and _driving directions_, only data from the last 7 days is retrieved. Finally, data is inserted into BigQuery with a batch size of 5000 to avoid running into API limits, especially when using the BigQuery Sandbox. These defaults are defined in [api.py](api.py) and can be tuned according to indiviual needs.
 
 Furthermore, _all_ available reviews in BigQuery will be used _only_ for the first run of the sentiment analysis. Once the analysis is complete, an empty file named `sentiments_lastrun` will be created in the application's root directory, and this file's modification timestamp will be used for subsequent sentiment analysis runs so that only non-analyzed reviews are taken into consideration. Delete the file to rerun the analysis on all available reviews.
+
+Finally, you can use the `--language` CLI flag to set the desired language that the Cloud Natural Language API should use for the sentiment analysis. This is particularly useful for reviews which may contain multiple languages. Refer to [this post](https://cloud.google.com/natural-language/docs/languages) for a list of languages supported by the API. You might need to deactivate one or more of the text annotation [features](https://cloud.google.com/natural-language/docs/reference/rest/v1/documents/annotateText#Features) in [api.py](api.py) accordingly if your language is not yet supported.
 
 ## Authors
 
