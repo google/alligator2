@@ -49,7 +49,7 @@ logging.getLogger("googleapiclient.discovery_cache").setLevel(logging.CRITICAL)
 
 class API(object):
 
-  def __init__(self, project_id):
+  def __init__(self, project_id, language):
     client_secrets = os.path.join(
         os.path.dirname(__file__), CLIENT_SECRETS_FILE)
 
@@ -79,6 +79,7 @@ class API(object):
     self.PROJECT_ID = project_id
     self.dataset_exists = False
     self.existing_tables = {}
+    self.language = language
 
     with open(SCHEMAS_FILE) as schemas_file:
       self.schemas = json.load(schemas_file)
@@ -261,12 +262,14 @@ class API(object):
         "encodingType": "UTF8"
     }
 
+    if self.language:
+      body['document']['language'] = self.language
+
     try:
       return self.nlp_service.documents().annotateText(body=body).execute(
           num_retries=MAX_RETRIES)
     except HttpError as err:
-      if err.resp.status != 400:
-        raise
+      raise
 
   def insights(self, location_id):
     end_time = (datetime.now() - timedelta(days=5)).replace(
