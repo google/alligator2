@@ -299,6 +299,11 @@
           ]
         }
       ]
+    },
+    {
+      "name": "topic",
+      "type": "STRING",
+      "mode": "NULLABLE"
     }
   ],
   "accounts": [

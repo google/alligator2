@@ -74,12 +74,14 @@ Optional arguments:
                       for a list of supported languages
 --no_insights         skip the insights processing and storage
 --no_reviews          skip the reviews processing and storage
---no_sentiment        skip the sentiment processing and storage
 --no_directions       skip the directions processing and storage
 --no_hourly_calls     skip the hourly calls processing and storage
+--no_sentiment        skip the sentiment processing and storage
+--no_topic_clustering skip the extraction of topics for each review
 --sentiment_only      only process and store the sentiment of all available
                       reviews since the last run (if --no-sentiment is
                       provided, no action is performed)
+-q, --quiet           only show warning and error messages (overrides --verbose)
 -v, --verbose         increase output verbosity
 ```
 
@@ -89,7 +91,9 @@ For the initial data load into BigQuery, a maximum of 18 months of insights data
 
 Furthermore, _all_ available reviews in BigQuery will be used _only_ for the first run of the sentiment analysis. Once the analysis is complete, an empty file named `sentiments_lastrun` will be created in the application's root directory, and this file's modification timestamp will be used for subsequent sentiment analysis runs so that only non-analyzed reviews are taken into consideration. Delete the file to rerun the analysis on all available reviews.
 
-Finally, you can use the `--language` CLI flag to set the desired language that the Cloud Natural Language API should use for the sentiment analysis. This is particularly useful for reviews which may contain multiple languages. Refer to [this post](https://cloud.google.com/natural-language/docs/languages) for a list of languages supported by the API. You might need to deactivate one or more of the text annotation [features](https://cloud.google.com/natural-language/docs/reference/rest/v1/documents/annotateText#Features) in [api.py](api.py) accordingly if your language is not yet supported.
+In terms of language processing, you can use the `--language` CLI flag to set the desired language that the Cloud Natural Language API should use for the sentiment analysis. This is particularly useful for reviews which may contain multiple languages. Refer to [this post](https://cloud.google.com/natural-language/docs/languages) for a list of languages supported by the API. You might need to deactivate one or more of the text annotation [features](https://cloud.google.com/natural-language/docs/reference/rest/v1/documents/annotateText#Features) in [api.py](api.py) accordingly if your language is not yet supported.
+
+Finally, using the topic extraction feature requires the sentiment analysis to be enabled (i.e., you can't run the topic extraction with the --no_sentiment flag). This particular use case will generate a file named `cluster_labels.txt` with a list of recommended topics based on word repetition in the reviews dataset. You can fine tune this list and add your own terms. If this file exists, it will be read by the tool and used as a list of topics to cluster reviews in, otherwise, the file will be recreated and the process will use the most frequent list of nouns.
 
 ## Authors
 

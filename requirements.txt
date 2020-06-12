@@ -1,3 +1,10 @@
+wheel
 oauth2client
 google-api-python-client
 babel
+pandas
+numpy
+tensorflow
+tensorflow-hub
+tensorflow-text
+sklearn
