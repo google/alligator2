@@ -20,6 +20,8 @@ import re
 from datetime import datetime
 from datetime import timedelta
 
+from babel import Locale
+from babel.core import UnknownLocaleError
 from googleapiclient import discovery
 from googleapiclient.http import build_http
 from googleapiclient.errors import HttpError
@@ -306,7 +308,7 @@ class API(object):
       self.to_bigquery(table_name="insights", data=data)
 
     else:
-      logging.warn("No insights reported for %s", location_id)
+      logging.warning("No insights reported for %s", location_id)
 
     return data
 
@@ -314,10 +316,18 @@ class API(object):
     query = {
         "locationNames": [location_id],
         "drivingDirectionsRequest": {
-            "numDays": DIRECTIONS_NUM_DAYS,
-            "language_code": "es_ES"
+            "numDays": DIRECTIONS_NUM_DAYS
         }
     }
+
+    if self.language:
+      lang = "en_US"
+      try:
+        lang = Locale.parse(f'und_{self.language}')
+      except UnknownLocaleError:
+        logging.warning("Error parsing language code, falling back to en_US.")
+
+      query['drivingDirectionsRequest']['languageCode'] = lang
 
     data = []
     account_id = re.search("(accounts/[0-9]+)/locations/[0-9]+", location_id,
