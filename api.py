@@ -128,7 +128,7 @@ class API(object):
     else:
       response_json = self.gmb_service.accounts().locations().get(
           name=location_id).execute(num_retries=MAX_RETRIES)
-      data = data + (response_json.get("locations") or [])
+      data = data + ([response_json] or [])
 
     logging.info(json.dumps(data, indent=2))
     self.to_bigquery(table_name="locations", data=data)
