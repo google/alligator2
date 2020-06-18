@@ -568,7 +568,7 @@
             },
             {
               "name": "radiusKm",
-              "type": "INT64",
+              "type": "FLOAT64",
               "mode": "NULLABLE"
             }
           ]
