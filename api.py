@@ -160,13 +160,13 @@ class API(object):
 
     query = {
       "query": """
-        SELECT 
+        SELECT
           comment,
           name,
           reviewId
-        FROM 
+        FROM
           [{projectId}:{datasetId}.reviews]
-        WHERE 
+        WHERE
           comment IS NOT NULL
           AND (
             DATE(_PARTITIONTIME) > "{lastrun}"
@@ -185,7 +185,7 @@ class API(object):
 
     rows = response_json.get("rows") or []
     self.process_sentiments(rows)
-    
+
     page_token = response_json.get("pageToken")
     if page_token:
       job_id = response_json.get("jobReference").get("jobId")
@@ -214,10 +214,10 @@ class API(object):
     try:
       lastrun = datetime.fromtimestamp(os.path.getmtime(lastrun_file_path)).date()
     except OSError:
-      logging.info("No previous run for sentiment analysis found. " + 
+      logging.info("No previous run for sentiment analysis found. " +
           "Performing sentiment analysis on all available reviews.")
-  
-    return lastrun        
+
+    return lastrun
 
   def process_sentiments(self, rows):
     sentiments = []
@@ -249,6 +249,10 @@ class API(object):
     if not content:
       return
 
+    valid_content = len(content.split()) > MIN_TOKENS
+    supported_lang = self.language == "en_US"
+    classify_text = valid_content and supported_lang
+
     body = {
         "document": {
             "type": "PLAIN_TEXT",
@@ -259,7 +263,7 @@ class API(object):
             "extractEntities": True,
             "extractDocumentSentiment": True,
             "extractEntitySentiment": True,
-            "classifyText": len(content.split()) > MIN_TOKENS
+            "classifyText": classify_text
         },
         "encodingType": "UTF8"
     }
@@ -327,7 +331,7 @@ class API(object):
       except UnknownLocaleError:
         logging.warning("Error parsing language code, falling back to en_US.")
 
-      query['drivingDirectionsRequest']['languageCode'] = lang
+      query['drivingDirectionsRequest']['languageCode'] = str(lang)
 
     data = []
     account_id = re.search("(accounts/[0-9]+)/locations/[0-9]+", location_id,
