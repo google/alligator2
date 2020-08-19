@@ -18,23 +18,25 @@ import sys
 
 from api import API
 
-INSIGHTS = 'insights'
-REVIEWS = 'reviews'
-SENTIMENT = 'sentiment'
-DIRECTIONS = 'directions'
-HOURLY_CALLS = 'hourly_calls'
+INSIGHTS = "insights"
+REVIEWS = "reviews"
+SENTIMENT = "sentiment"
+DIRECTIONS = "directions"
+HOURLY_CALLS = "hourly_calls"
+TOPIC_CLUSTERING = "topic_clustering"
 
 
 class Alligator():
 
   @classmethod
-  def sentiment_only(cls, project_id, language):
-    api = API(project_id, language)
+  def sentiment_only(cls, project_id, language, flags):
+    api = API(project_id, language, flags)
     api.sentiments()
 
   @classmethod
-  def for_account_and_location(cls, project_id, account_id, location_id, language, flags):
-    api = API(project_id, language)
+  def for_account_and_location(cls, project_id, account_id, location_id,
+                               language, flags):
+    api = API(project_id, language, flags)
 
     location_name = u"accounts/{}/locations/{}".format(account_id, location_id)
 
@@ -53,7 +55,7 @@ class Alligator():
 
   @classmethod
   def for_account(cls, project_id, account_id, language, flags):
-    api = API(project_id, language)
+    api = API(project_id, language, flags)
     locations = api.locations(u"accounts/{}".format(account_id))
 
     for location in locations:
@@ -72,7 +74,7 @@ class Alligator():
 
   @classmethod
   def all(cls, project_id, language, flags):
-    api = API(project_id, language)
+    api = API(project_id, language, flags)
     accounts = api.accounts()
 
     for account in accounts:
@@ -140,8 +142,17 @@ def main(argv):
       help="skip the hourly calls processing and storage",
       action="store_true")
   parser.add_argument(
+      "--no_topic_clustering",
+      help="skip the extraction of topics for each reviews",
+      action="store_true")
+  parser.add_argument(
       "--sentiment_only",
       help="only process and store the sentiment of all available reviews (if --no-sentiment is provided, no action is performed)",
+      action="store_true")
+  parser.add_argument(
+      "-q",
+      "--quiet",
+      help="only show warning and error messages (overrides --verbose)",
       action="store_true")
   parser.add_argument(
       "-v", "--verbose", help="increase output verbosity", action="store_true")
@@ -158,14 +169,25 @@ def main(argv):
   flags[HOURLY_CALLS] = not args.no_hourly_calls
   flags[REVIEWS] = not args.no_reviews
   flags[SENTIMENT] = not args.no_sentiment
+  flags[TOPIC_CLUSTERING] = not args.no_topic_clustering
 
   sentiment_only = args.sentiment_only
+  quiet = args.quiet
   verbose = args.verbose
 
   sys.argv.clear()
 
-  if verbose:
-    logging.basicConfig(level=logging.DEBUG)
+  log_format = "[%(asctime)s] %(levelname)s [%(name)s] %(message)s"
+  date_format = "%H:%M:%S"
+  if quiet:
+    logging.basicConfig(
+        format=log_format, datefmt=date_format, level=logging.WARNING)
+  elif verbose:
+    logging.basicConfig(
+        format=log_format, datefmt=date_format, level=logging.DEBUG)
+  else:
+    logging.basicConfig(
+        format=log_format, datefmt=date_format, level=logging.INFO)
 
   logging.info(u"Project ID:\t%s", project_id)
   logging.info(u"Account ID:\t%s", account_id)
@@ -174,25 +196,25 @@ def main(argv):
 
   if sentiment_only:
     if flags[SENTIMENT]:
-      print("Running sentiment analysis for all reviews in BigQuery...")
-      Alligator.sentiment_only(project_id, language)
+      logging.info("Running sentiment analysis for all reviews in BigQuery...")
+      Alligator.sentiment_only(project_id, language, flags)
     else:
-      print(
+      logging.warning(
           "No action will be performed as --no_sentiment and --sentiment_only flags have been provided."
       )
     sys.exit()
 
-  print("Loading Google My Business reviews into BigQuery...")
+  logging.info("Loading Google My Business reviews into BigQuery...")
 
   if account_id and location_id:
-    Alligator.for_account_and_location(
-        project_id, account_id, location_id, language, flags)
+    Alligator.for_account_and_location(project_id, account_id, location_id,
+                                       language, flags)
   elif account_id:
     Alligator.for_account(project_id, account_id, language, flags)
   else:
     Alligator.all(project_id, language, flags)
 
-  print("Done.")
+  logging.info("Done.")
 
 
 if __name__ == "__main__":
