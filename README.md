@@ -100,4 +100,5 @@ Finally, using the topic extraction feature requires the sentiment analysis to b
 * Tony Coconate (coconate@google.com) – Google
 * Miguel Fernandes (miguelfc@google.com) – Google
 * Mohab Fekry (mfekry@google.com) – Google
+* Darragh Kelly (dfkelly@google.com) - Google
 * David Harcombe (davidharcombe@google.com) – Google
