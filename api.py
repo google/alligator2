@@ -157,10 +157,18 @@ class API(object):
 
   def sentiments(self):
     page_token = None
-    lastrun = self.get_sentiments_lastrun()
+    lastrun, file_exists = self.get_sentiments_lastrun()
 
     self.ensure_dataset_exists()
     self.ensure_table_exists(table_name="reviews")
+
+    if file_exists:
+      logging.info(("Sentiment analysis last run: [{}]. "
+                   "Performing sentiment analysis on newer reviews...")
+                   .format(lastrun))
+    else:
+      logging.info("No previous run for sentiment analysis found. "
+                  "Performing sentiment analysis on all available reviews...")
 
     query = {
         "query":
@@ -185,6 +193,11 @@ class API(object):
             BQ_JOBS_QUERY_MAXRESULTS_PER_PAGE
     }
 
+    page_ctr = 1
+    message = ("Fetching reviews for sentiment analysis... "
+              "[page_size={}][page={}]")
+    logging.info(message.format(BQ_JOBS_QUERY_MAXRESULTS_PER_PAGE, page_ctr))
+
     response_json = self.bq_service.jobs().query(
         projectId=self.project_id, body=query).execute(num_retries=MAX_RETRIES)
 
@@ -196,6 +209,9 @@ class API(object):
       job_id = response_json.get("jobReference").get("jobId")
 
       while True:
+        page_ctr = page_ctr + 1
+        logging.info(message.format(BQ_JOBS_QUERY_MAXRESULTS_PER_PAGE, page_ctr))
+
         response_json_job = self.bq_service.jobs().getQueryResults(
             projectId=self.project_id,
             jobId=job_id,
@@ -215,15 +231,18 @@ class API(object):
     lastrun_file_path = os.path.join(
         os.path.dirname(__file__), SENTIMENTS_LASTRUN_FILE)
     lastrun = datetime(year=1970, month=1, day=1).date()
+    file_exists = False
 
-    try:
-      lastrun = datetime.fromtimestamp(
+    if os.path.isfile(lastrun_file_path):
+      file_exists = True
+      try:
+        lastrun = datetime.fromtimestamp(
           os.path.getmtime(lastrun_file_path)).date()
-    except OSError:
-      logging.info("No previous run for sentiment analysis found. "
-                   "Performing sentiment analysis on all available reviews.")
+      except OSError:
+        logging.warn("Path {} is inaccessible!"
+          .format(lastrun_file_path))
 
-    return lastrun
+    return lastrun, file_exists
 
   def process_sentiments(self, rows):
     sentiments = []
@@ -241,6 +260,7 @@ class API(object):
 
     if sentiments and self.topic_clustering:
       if sentiments:
+        logging.info("Determining topics for the current batch of reviews...")
         self.topic_clustering.determine_topics(sentiments)
 
     logging.debug(json.dumps(sentiments, indent=2))
