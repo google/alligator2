@@ -57,8 +57,12 @@ class Alligator():
   def for_account(cls, project_id, account_id, language, flags):
     api = API(project_id, language, flags)
     locations = api.locations(u"accounts/{}".format(account_id))
+    num_locations = len(locations)
+    loc_ctr = 1
 
     for location in locations:
+      logging.info("Processing location {} of {}...".format(
+        loc_ctr, num_locations))
       location_name = location.get("name")
       if flags[INSIGHTS]:
         api.insights(location_name)
@@ -69,6 +73,8 @@ class Alligator():
       if flags[REVIEWS]:
         api.reviews(location_name)
 
+      loc_ctr = loc_ctr + 1
+
     if flags[SENTIMENT]:
       api.sentiments()
 
@@ -76,12 +82,20 @@ class Alligator():
   def all(cls, project_id, language, flags):
     api = API(project_id, language, flags)
     accounts = api.accounts()
+    num_accounts = len(accounts)
+    ac_ctr = 1
 
     for account in accounts:
+      logging.info("Processing account {} of {}...".format(
+        ac_ctr, num_accounts))
       account_name = account.get("name")
       locations = api.locations(account_name)
+      num_locations = len(locations)
+      loc_ctr = 1
 
       for location in locations:
+        logging.info("Processing location {} of {}...".format(
+          loc_ctr, num_locations))
         location_name = location.get("name")
         if flags[INSIGHTS]:
           api.insights(location_name)
@@ -91,6 +105,9 @@ class Alligator():
           api.hourly_calls(location_name)
         if flags[REVIEWS]:
           api.reviews(location_name)
+
+        loc_ctr = loc_ctr + 1
+      ac_ctr = ac_ctr + 1
 
     if flags[SENTIMENT]:
       api.sentiments()
