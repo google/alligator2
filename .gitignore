@@ -6,3 +6,4 @@ credentials.dat
 *.pyc
 __pycache__/
 sentiments_lastrun
+cluster_labels.txt
