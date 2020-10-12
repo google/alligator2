@@ -49,6 +49,8 @@ class TopicClustering(object):
         logging.info("Found cluster labels file. %d labels loaded.",
                      len(self.candidate_cluster_names))
 
+      labels_file.close()
+
   def recommend_topics(self, nouns):
     """Recommends a list of topics for a given set of nouns based on repetition.
 
@@ -65,6 +67,8 @@ class TopicClustering(object):
     with open(self.cluster_labels_file_location, "w") as labels_file:
       for label in candidate_cluster_names:
         labels_file.write(label + "\n")
+
+      labels_file.close()
 
     return candidate_cluster_names
 
