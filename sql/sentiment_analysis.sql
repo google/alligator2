@@ -18,7 +18,8 @@ SELECT
   sentences.text.content AS sentenceContent,
   sentences.sentiment.score AS sentenceScore,
   entities.name AS entityName,
-  entities.salience AS entitySalience
+  entities.salience AS entitySalience,
+  s.topic AS topic # remove if not using the topic_clustering feature
 FROM
   `<PROJECT_ID>.alligator.sentiments` AS s
   CROSS JOIN
@@ -40,4 +41,5 @@ GROUP BY
   sentenceContent,
   sentenceScore,
   entityName,
-  entitySalience
+  entitySalience,
+  topic # remove if not using the topic_clustering feature
