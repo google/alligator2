@@ -13,6 +13,10 @@ Along with gathering stats, the Google Cloud Natural Language API is used to pro
 
 ## Installation and Setup
 
+Follow the steps below, or alternatively open the [alligator2.ipynb](alligator2.ipynb) notebook using [Google Colaboratory](https://colab.research.google.com) (preferred for better formatting) or Jupyter for a more interactive installation experience. The notebook contains additional information on maintenance and reporting, and will help you better visualize the data that will get imported into BigQuery after running the solution.
+
+> Unlike traditional notebooks, the alligator2.ipynb notebook references the code in this GitHub repository rather than hosting its own version of the code.
+
 ### Install Python Libraries
 
 Install the required dependencies
