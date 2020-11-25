@@ -143,9 +143,17 @@ class API(object):
     page_token = None
 
     while True:
-      response_json = self.gmb_service.accounts().locations().reviews().list(
-          parent=location_id,
-          pageToken=page_token).execute(num_retries=MAX_RETRIES)
+      try:
+        response_json = self.gmb_service.accounts().locations().reviews().list(
+            parent=location_id,
+            pageToken=page_token).execute(num_retries=MAX_RETRIES)
+      except HttpError as err:
+        # Known bug on the GMB side, causing requests to return a 500
+        # for locations with many thousands or reviews.
+        # Workaround for now: stop listing reviews and log the error.
+        logging.error(f'Failed to list reviews for location_id={location_id} '
+                      f'and pageToken={page_token} with error: {str(err)}')
+        break
 
       data = response_json.get("reviews") or []
       logging.debug(json.dumps(data, indent=2))
