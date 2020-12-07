@@ -4,7 +4,7 @@
 
 This tool is a Python-based solution that aggregates _Insights_ data from the Google My Business API and stores it into Google Cloud Platform, precisely in BigQuery. _Insights_ data provides details around how users interact with Google My Business listings via Google Maps, such as the number of queries for a location, locations of where people searched for directions, number of website clicks, calls, and reviews. The tool provides a cross-account look at the data instead of a per-location view.
 
-Along with gathering stats, the Google Cloud Natural Language API is used to provide sentiment analysis and entity detection for supported languages. This is a fully automated process that pulls data from the Google My Business API and places it into a BigQuery instance, processing each review's content with the Natural Language API to generate a sentiment score for analysis.
+Along with gathering stats, the Google Cloud Natural Language API is used to provide sentiment analysis and entity detection for supported languages. This is a fully automated process that pulls data from the Google My Business API and places it into a BigQuery instance, processing each review's content with the Natural Language API to generate a sentiment score for analysis. Furthermore, reviews can be classified by 'topics' to help surface areas of improvement across different locations.
 
 ## Google My Business Account Prerequisites
 
