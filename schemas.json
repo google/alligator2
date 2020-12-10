@@ -518,6 +518,23 @@
       ]
     },
     {
+      "name": "latlng",
+      "type": "RECORD",
+      "mode": "NULLABLE",
+      "fields": [
+        {
+          "name": "latitude",
+          "type": "FLOAT64",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "longitude",
+          "type": "FLOAT64",
+          "mode": "NULLABLE"
+        }
+      ]
+    },
+    {
       "name": "openInfo",
       "type": "RECORD",
       "mode": "NULLABLE",
