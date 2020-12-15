@@ -18,6 +18,7 @@ from datetime import datetime, timedelta
 from faker import Faker
 from geopy.geocoders import GoogleV3
 import numpy as np
+from transformers import pipeline, set_seed
 
 STORE_NAMES = [
     'ABC Hypermarket', 'DEF Supermarket', 'GHI Express Market',
@@ -59,8 +60,22 @@ PRIMARY_CATEGORIES = [('gcid:supermarket', 'Supermarket')]
 USE_GOOGLE_MAPS = False
 GOOGLE_MAPS_API_KEY = ''
 
+USE_GPT2_FOR_REVIEWS = False
+GPT2_REVIEW_SEEDS = [
+    'The supermarket is excellent, great lighting and space to shop safely. Great produce also.',
+    'I love going to this store. They have great customer service in store and everything was clean.',
+    'I live above this supermarket. They have a pretty good variety in everything. They sell a small variety of vegetables as well',
+    'I don\'t think I\'ll come back to this store, I couldn\'t find anything and the quality of the products was bad.',
+    'The supermarket has a lot a good products in shelves, and they are always rotating discounts.',
+    'Great variety and low prices in this store, but the air conditioner was broken and it was too hot in summer.',
+]
+
 fake = Faker(LOCALE)
 Faker.seed(25)
+
+if USE_GPT2_FOR_REVIEWS:
+  gpt2_generator = pipeline('text-generation', model='gpt2')
+  set_seed(25)
 
 locator = None
 # Note: The locator can be changed to any other provider in the geopy library.
@@ -344,10 +359,10 @@ class DataFiller(object):
             page_token: the page token to be decreased.
           """
 
-          def __init__(self, parent, pageToken=LOCATIONS_PAGES):
+          def __init__(self, parent, pageToken=REVIEWS_PAGES):
             self.account_id = parent
             if not pageToken:
-              self.page_token = LOCATIONS_PAGES
+              self.page_token = REVIEWS_PAGES
             else:
               self.page_token = pageToken
 
@@ -362,9 +377,8 @@ class DataFiller(object):
             del num_retries
             data = []
             reviews_per_page = fake.random_int(min=1, max=REVIEWS_PER_PAGE)
-            for _ in range(reviews_per_page):
-              item = self.generate_reviews()
-              data.append(item)
+            data = self.generate_reviews(reviews_per_page)
+
             next_page_token = self.page_token - 1
             composed_data = {
                 'reviews': data,
@@ -374,13 +388,49 @@ class DataFiller(object):
             }
             return composed_data
 
-          def generate_reviews(self):
+          def generate_reviews(self, reviews_to_generate):
             """Generates a fake reviews report for a single location.
 
             Args:
-                None.
+                reviews_to_generate: total number of reviews to generate.
             Returns:
                 A fake reviews report.
+            """
+            data = []
+            if USE_GPT2_FOR_REVIEWS:
+              data = self.generate_gpt2_reviews(reviews_to_generate)
+            else:
+              for _ in range(reviews_to_generate):
+                item = self.generate_single_review()
+                data.append(item)
+
+            return data
+
+          def generate_gpt2_reviews(self, reviews_to_generate):
+            """Generates a fake reviews report for a single location with gpt2.
+
+            Args:
+                reviews_to_generate: total number of reviews to generate.
+            Returns:
+                A fake reviews report.
+            """
+            data = []
+            seed = fake.random_element(elements=GPT2_REVIEW_SEEDS)
+            sentences = gpt2_generator(
+                seed, max_length=100, num_return_sequences=reviews_to_generate)
+            for sentence in sentences:
+              review_text = sentence['generated_text'].replace(seed, '')
+              review = self.generate_single_review(review_text)
+              data.append(review)
+            return data
+
+          def generate_single_review(self, review_text=None):
+            """Generates a single review for a single location.
+
+            Args:
+                review_text: text to be used as review text.
+            Returns:
+                A fake review.
             """
             # Pre-generate common info
             review_id = fake.password(
@@ -398,8 +448,10 @@ class DataFiller(object):
                 'displayName': fake.name()
             }
             item['starRating'] = fake.random_element(elements=RATINGS)
-            # TODO(pending): Find a more suitable library for review texts.
-            item['comment'] = fake.text()
+            if review_text:
+              item['comment'] = review_text
+            else:
+              item['comment'] = fake.text()
             item['createTime'] = fake_date_str
             item['updateTime'] = fake_date_str
             item['name'] = f'{self.account_id}/reviews/{review_id}'
@@ -569,7 +621,7 @@ class DataFiller(object):
             current_hour = 0
             for value in values:
               if current_hour < 6 or current_hour > 22:
-                value = fake.random_int(max=int(HOURLY_CALLS_MEAN/4))
+                value = fake.random_int(max=int(HOURLY_CALLS_MEAN / 4))
               dimensional_value = {
                   'metricOption': metric[0],
                   'timeDimension': {
