@@ -28,6 +28,11 @@ from googleapiclient.http import build_http
 from oauth2client import client, file, tools
 from topic_clustering import TopicClustering
 
+# v1 Discovery Documents
+ACCOUNTS = 'mybusinessaccountmanagement'
+FEDERATED_SERVICES = [ACCOUNTS]
+DISCOVERY_FILE_SUFFIX = "_discovery.json"
+# Legacy Discovery Document
 GMB_DISCOVERY_FILE = "gmb_discovery.json"
 CLIENT_SECRETS_FILE = "client_secrets.json"
 CREDENTIALS_STORAGE = "credentials.dat"
@@ -74,6 +79,14 @@ class API(object):
 
     http = credentials.authorize(http=build_http())
 
+    self.gmb_services = {}
+    for service_name in FEDERATED_SERVICES:
+      with open(f"{service_name}{DISCOVERY_FILE_SUFFIX}") as discovery_file:
+        self.gmb_services[service_name] = discovery.build_from_document(
+            discovery_file.read(),
+            base="https://www.googleapis.com/",
+            http=http)
+
     with open(GMB_DISCOVERY_FILE) as gmb_discovery_file:
       self.gmb_service = discovery.build_from_document(
           gmb_discovery_file.read(),
@@ -98,7 +111,7 @@ class API(object):
     data = []
     page_token = None
     while True:
-      response_json = self.gmb_service.accounts().list(
+      response_json = self.gmb_services[ACCOUNTS].accounts().list(
           pageToken=page_token).execute(num_retries=MAX_RETRIES)
 
       data = data + (response_json.get("accounts") or [])

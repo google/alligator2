@@ -37,7 +37,21 @@ Please note that BigQuery provides a [sandbox](https://cloud.google.com/bigquery
 
 Create a file named `client_secrets.json`, with the credentials downloaded as JSON from your Google Cloud Platform Project API Console.
 
-### Download the Google My Business API Discovery Document
+### Download the Google My Business API Discovery Documents
+
+As the GMB API is migrating to a new [federated model](https://developers.google.com/my-business/preview/content/upcoming_releases), this tool needs to work with a different subset of discovery documents until the migration is completed.
+
+#### Download the federated Google My Business API Discovery Documents
+
+Go to the [Samples page](https://developers.google.com/my-business/samples/), download the discovery docs for the services used by this tool, and save the files as indicated in the following table.
+
+| Service                | File Name                                  |
+|:---------------------- |:------------------------------------------ |
+| Account Management API | mybusinessaccountmanagement_discovery.json |
+
+To download each file, right click **Discovery doc** below the name of each service, and select **Save Link As**. Then, save the file with the name indicated in the table in the same directory.
+
+#### Download the v4 Google My Business API Discovery Document
 
 Go to the [Samples page](https://developers.google.com/my-business/samples/#discovery_document), right click **Download discovery document**, and select **Save Link As**. Then, save the file as `gmb_discovery.json` in the same directory.
 
