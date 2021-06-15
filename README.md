@@ -53,7 +53,7 @@ To download each file, right click **Discovery doc** below the name of each serv
 
 #### Download the v4 Google My Business API Discovery Document
 
-Go to the [Samples page](https://developers.google.com/my-business/samples/#discovery_document), right click **Download discovery document**, and select **Save Link As**. Then, save the file as `gmb_discovery.json` in the same directory.
+Go to the [Samples page](https://developers.google.com/my-business/samples/previousVersions#discovery_document), right click **Download discovery document**, and select **Save Link As**. Then, save the file as `gmb_discovery.json` in the same directory.
 
 ### Run the solution
 
