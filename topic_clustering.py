@@ -35,8 +35,8 @@ class TopicClustering(object):
     # Reduce verbosity of tensorflow
     tf.get_logger().setLevel("ERROR")
     default_folder = os.path.dirname(os.path.realpath(__file__))
-    self.cluster_labels_file_location = "{}/{}".format(default_folder,
-                                                       CLUSTER_LABELS_FILE)
+    self.cluster_labels_file_location = os.path.join(
+      default_folder, CLUSTER_LABELS_FILE)
 
     self.model = hub.load(
         "https://tfhub.dev/google/universal-sentence-encoder-multilingual/3")
