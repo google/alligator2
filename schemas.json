@@ -428,7 +428,7 @@
       "mode": "NULLABLE"
     },
     {
-      "name": "websiteUrl",
+      "name": "websiteUri",
       "type": "STRING",
       "mode": "NULLABLE"
     },
@@ -449,8 +449,15 @@
             },
             {
               "name": "openTime",
-              "type": "STRING",
-              "mode": "NULLABLE"
+              "type": "RECORD",
+              "mode": "NULLABLE",
+              "fields": [
+                {
+                  "name": "hours",
+                  "type": "INT64",
+                  "mode": "NULLABLE"
+                }
+              ]
             },
             {
               "name": "closeDay",
@@ -459,8 +466,15 @@
             },
             {
               "name": "closeTime",
-              "type": "STRING",
-              "mode": "NULLABLE"
+              "type": "RECORD",
+              "mode": "NULLABLE",
+              "fields": [
+                {
+                  "name": "hours",
+                  "type": "INT64",
+                  "mode": "NULLABLE"
+                }
+              ]
             }
           ]
         }
@@ -472,48 +486,120 @@
       "mode": "NULLABLE",
       "fields": [
         {
-          "name": "periods",
+          "name": "specialHourPeriods",
           "type": "RECORD",
           "mode": "REPEATED",
           "fields": [
             {
-              "name": "openDay",
-              "type": "STRING",
-              "mode": "NULLABLE"
+              "name": "startDate",
+              "type": "RECORD",
+              "mode": "NULLABLE",
+              "fields": [
+                {
+                  "name": "year",
+                  "type": "INT64",
+                  "mode": "NULLABLE"
+                },
+                {
+                  "name": "month",
+                  "type": "INT64",
+                  "mode": "NULLABLE"
+                },
+                {
+                  "name": "day",
+                  "type": "INT64",
+                  "mode": "NULLABLE"
+                }
+              ]
             },
             {
               "name": "openTime",
-              "type": "STRING",
-              "mode": "NULLABLE"
+              "type": "RECORD",
+              "mode": "NULLABLE",
+              "fields": [
+                {
+                  "name": "hours",
+                  "type": "INT64",
+                  "mode": "NULLABLE"
+                }
+              ]
             },
             {
-              "name": "closeDay",
-              "type": "STRING",
-              "mode": "NULLABLE"
+              "name": "endDate",
+              "type": "RECORD",
+              "mode": "NULLABLE",
+              "fields": [
+                {
+                  "name": "year",
+                  "type": "INT64",
+                  "mode": "NULLABLE"
+                },
+                {
+                  "name": "month",
+                  "type": "INT64",
+                  "mode": "NULLABLE"
+                },
+                {
+                  "name": "day",
+                  "type": "INT64",
+                  "mode": "NULLABLE"
+                }
+              ]
             },
             {
               "name": "closeTime",
-              "type": "STRING",
-              "mode": "NULLABLE"
+              "type": "RECORD",
+              "mode": "NULLABLE",
+              "fields": [
+                {
+                  "name": "hours",
+                  "type": "INT64",
+                  "mode": "NULLABLE"
+                }
+              ]
             }
           ]
         }
       ]
     },
     {
-      "name": "additionalCategories",
+      "name": "categories",
       "type": "RECORD",
-      "mode": "REPEATED",
+      "mode": "NULLABLE",
       "fields": [
         {
-          "name": "displayName",
-          "type": "STRING",
-          "mode": "NULLABLE"
+          "name": "primaryCategory",
+          "type": "RECORD",
+          "mode": "NULLABLE",
+          "fields": [
+            {
+              "name": "displayName",
+              "type": "STRING",
+              "mode": "NULLABLE"
+            },
+            {
+              "name": "categoryId",
+              "type": "STRING",
+              "mode": "NULLABLE"
+            }
+          ]
         },
         {
-          "name": "categoryId",
-          "type": "STRING",
-          "mode": "NULLABLE"
+          "name": "additionalCategories",
+          "type": "RECORD",
+          "mode": "REPEATED",
+          "fields": [
+            {
+              "name": "displayName",
+              "type": "STRING",
+              "mode": "NULLABLE"
+            },
+            {
+              "name": "categoryId",
+              "type": "STRING",
+              "mode": "NULLABLE"
+            }
+          ]
         }
       ]
     },
@@ -543,6 +629,28 @@
           "name": "status",
           "type": "STRING",
           "mode": "NULLABLE"
+        },
+        {
+          "name": "openingDate",
+          "type": "RECORD",
+          "mode": "NULLABLE",
+          "fields": [
+            {
+              "name": "year",
+              "type": "INT64",
+              "mode": "NULLABLE"
+            },
+            {
+              "name": "month",
+              "type": "INT64",
+              "mode": "NULLABLE"
+            },
+            {
+              "name": "day",
+              "type": "INT64",
+              "mode": "NULLABLE"
+            }
+          ]
         },
         {
           "name": "canReopen",
@@ -603,39 +711,46 @@
       "mode": "REPEATED"
     },
     {
-      "name": "locationKey",
+      "name": "storeCode",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "title",
+      "type": "STRING",
+      "mode": "NULLABLE"
+    },
+    {
+      "name": "profile",
       "type": "RECORD",
       "mode": "NULLABLE",
       "fields": [
         {
-          "name": "placeId",
-          "type": "STRING",
-          "mode": "NULLABLE"
-        },
-        {
-          "name": "requestId",
+          "name": "description",
           "type": "STRING",
           "mode": "NULLABLE"
         }
       ]
     },
     {
-      "name": "storeCode",
-      "type": "STRING",
-      "mode": "NULLABLE"
+      "name": "phoneNumbers",
+      "type": "RECORD",
+      "mode": "NULLABLE",
+      "fields": [
+        {
+          "name": "primaryPhone",
+          "type": "STRING",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "additionalPhones",
+          "type": "STRING",
+          "mode": "REPEATED"
+        }
+      ]
     },
     {
-      "name": "locationName",
-      "type": "STRING",
-      "mode": "NULLABLE"
-    },
-    {
-      "name": "primaryPhone",
-      "type": "STRING",
-      "mode": "NULLABLE"
-    },
-    {
-      "name": "address",
+      "name": "storefrontAddress",
       "type": "RECORD",
       "mode": "NULLABLE",
       "fields": [
@@ -677,29 +792,27 @@
       "mode": "NULLABLE",
       "fields": [
         {
-          "name": "newReviewUrl",
+          "name": "hasGoogleUpdated",
+          "type": "BOOLEAN",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "canDelete",
+          "type": "BOOLEAN",
+          "mode": "NULLABLE"
+        },
+        {
+          "name": "placeId",
           "type": "STRING",
           "mode": "NULLABLE"
         },
         {
-          "name": "mapsUrl",
-          "type": "STRING",
-          "mode": "NULLABLE"
-        }
-      ]
-    },
-    {
-      "name": "primaryCategory",
-      "type": "RECORD",
-      "mode": "NULLABLE",
-      "fields": [
-        {
-          "name": "displayName",
+          "name": "newReviewUri",
           "type": "STRING",
           "mode": "NULLABLE"
         },
         {
-          "name": "categoryId",
+          "name": "mapsUri",
           "type": "STRING",
           "mode": "NULLABLE"
         }

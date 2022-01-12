@@ -38,40 +38,48 @@ class Alligator():
                                language, flags):
     api = API(project_id, language, flags)
 
-    location_name = u"accounts/{}/locations/{}".format(account_id, location_id)
+    location_name = u"locations/{}".format(location_id)
+    account_name = u"accounts/{}".format(account_id)
 
-    api.locations(u"accounts/{}".format(account_id), location_id=location_name)
+    legacy_location_name = u"accounts/{}/locations/{}".format(account_id,
+                                                              location_id)
+
+    api.locations(account_id=account_name, location_id=location_name)
 
     if flags[INSIGHTS]:
-      api.insights(location_name)
+      api.insights(legacy_location_name)
     if flags[DIRECTIONS]:
-      api.directions(location_name)
+      api.directions(legacy_location_name)
     if flags[HOURLY_CALLS]:
-      api.hourly_calls(location_name)
+      api.hourly_calls(legacy_location_name)
     if flags[REVIEWS]:
-      api.reviews(location_name)
+      api.reviews(legacy_location_name)
     if flags[SENTIMENT]:
       api.sentiments()
 
   @classmethod
   def for_account(cls, project_id, account_id, language, flags):
+    account_name = u"accounts/{}".format(account_id)
+
     api = API(project_id, language, flags)
-    locations = api.locations(u"accounts/{}".format(account_id))
+    locations = api.locations(account_id=account_name)
     num_locations = len(locations)
     loc_ctr = 1
 
     for location in locations:
       logging.info("Processing location {} of {}...".format(
-        loc_ctr, num_locations))
-      location_name = location.get("name")
+          loc_ctr, num_locations))
+
+      legacy_location_name = u"{}/{}".format(account_name, location.get("name"))
+
       if flags[INSIGHTS]:
-        api.insights(location_name)
+        api.insights(legacy_location_name)
       if flags[DIRECTIONS]:
-        api.directions(location_name)
+        api.directions(legacy_location_name)
       if flags[HOURLY_CALLS]:
-        api.hourly_calls(location_name)
+        api.hourly_calls(legacy_location_name)
       if flags[REVIEWS]:
-        api.reviews(location_name)
+        api.reviews(legacy_location_name)
 
       loc_ctr = loc_ctr + 1
 
@@ -87,24 +95,29 @@ class Alligator():
 
     for account in accounts:
       logging.info("Processing account {} of {}...".format(
-        ac_ctr, num_accounts))
-      account_name = account.get("name")
+          ac_ctr, num_accounts))
+
+      account_id = account.get("name")
+      account_name = u"accounts/{}".format(account_id)
       locations = api.locations(account_name)
       num_locations = len(locations)
       loc_ctr = 1
 
       for location in locations:
         logging.info("Processing location {} of {}...".format(
-          loc_ctr, num_locations))
-        location_name = location.get("name")
+            loc_ctr, num_locations))
+
+        legacy_location_name = u"{}/{}".format(account_name,
+                                               location.get("name"))
+
         if flags[INSIGHTS]:
-          api.insights(location_name)
+          api.insights(legacy_location_name)
         if flags[DIRECTIONS]:
-          api.directions(location_name)
+          api.directions(legacy_location_name)
         if flags[HOURLY_CALLS]:
-          api.hourly_calls(location_name)
+          api.hourly_calls(legacy_location_name)
         if flags[REVIEWS]:
-          api.reviews(location_name)
+          api.reviews(legacy_location_name)
 
         loc_ctr = loc_ctr + 1
       ac_ctr = ac_ctr + 1

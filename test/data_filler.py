@@ -160,7 +160,9 @@ class DataFiller(object):
           page_token: the page token to be decreased.
         """
 
-        def __init__(self, parent, pageToken=LOCATIONS_PAGES):
+        def __init__(self, parent, pageToken=LOCATIONS_PAGES,
+                     pageSize=None, readMask=None):
+          del pageSize, readMask
           self.account_id = parent
           if not pageToken:
             self.page_token = LOCATIONS_PAGES
@@ -252,16 +254,18 @@ class DataFiller(object):
           store_id = 'abc:' + fake.ean(length=8)
           description = fake.text()
           url = fake.url()
-          opening_hour = '09:00'
-          closing_hour = '22:00'
+          opening_hour = 9
+          closing_hour = 22
 
           item = {}
 
           item['adWordsLocationExtensions'] = {}
 
-          item['additionalPhones'] = [additional_phone]
+          item['phoneNumbers'] = {}
+          item['phoneNumbers']['primaryPhone'] = primary_phone
+          item['phoneNumbers']['additionalPhones'] = [additional_phone]
 
-          item['address'] = {
+          item['storefrontAddress'] = {
               'addressLines': [location_address['street_address']],
               'administrativeArea': location_address['locality'],
               'languageCode': LANGUAGE_CODE,
@@ -269,30 +273,14 @@ class DataFiller(object):
               'postalCode': location_address['postal_code'],
               'regionCode': location_address['country_code']
           }
-          attributes = []
-          for attribute_name in [
-              'pay_debit_card', 'has_wheelchair_accessible_elevator',
-              'has_wheelchair_accessible_parking', 'has_check_cashing',
-              'has_wheelchair_accessible_entrance', 'has_restroom_public',
-              'sells_organic_products', 'has_in_store_pickup',
-              'sells_food_prepared', 'has_no_contact_delivery',
-              'has_in_store_shopping'
-          ]:
-            attribute = {
-                'attributeId': attribute_name,
-                'valueType': 'BOOL',
-                'values': [fake.boolean(chance_of_getting_true=70)]
-            }
-            attributes.append(attribute)
-          item['attributes'] = attributes
+
           item['labels'] = []
           item['languageCode'] = 'es'
           item['latlng'] = {
               'latitude': location_address['latitude'],
               'longitude': location_address['longitude']
           }
-          item['locationKey'] = {'placeId': place_id, 'requestId': request_id}
-          item['locationName'] = fake.random_element(elements=STORE_NAMES)
+          item['title'] = fake.random_element(elements=STORE_NAMES)
           item['locationState'] = {
               'canDelete': True,
               'canUpdate': True,
@@ -302,12 +290,12 @@ class DataFiller(object):
               'isVerified': fake.boolean(chance_of_getting_true=95)
           }
           item['metadata'] = {
-              'mapsUrl':
+              'mapsUri':
                   'https://maps.google.com/maps?cid=',
-              'newReviewUrl':
+              'newReviewUri':
                   'https://search.google.com/local/writereview?placeid='
           }
-          item['name'] = f'accounts/{self.account_id}/locations/{location_id}'
+          item['name'] = f'locations/{location_id}'
           item['openInfo'] = {'canReopen': True, 'status': 'OPEN'}
           hour_types = []
           for types in [('Access', 'ACCESS'), ('Brunch', 'BRUNCH'),
@@ -327,7 +315,7 @@ class DataFiller(object):
               'displayName': category_and_name[1],
               'moreHoursTypes': hour_types
           }
-          item['primaryPhone'] = primary_phone
+
           item['profile'] = {'description': description}
           periods = []
           for day in [
@@ -336,15 +324,19 @@ class DataFiller(object):
           ]:
             period = {
                 'closeDay': day,
-                'closeTime': closing_hour,
+                'closeTime': {
+                  'hours': closing_hour
+                },
                 'openDay': day,
-                'openTime': opening_hour
+                'openTime': {
+                  'hours': opening_hour
+                },
             }
             periods.append(period)
           item['regularHours'] = {'periods': periods}
           item['specialHours'] = {'specialHourPeriods': []}
           item['storeCode'] = store_id
-          item['websiteUrl'] = url
+          item['websiteUri'] = url
           return item
 
       class reviews(object):  # pylint: disable=invalid-name

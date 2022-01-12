@@ -1,9 +1,4 @@
 SELECT
-  CASE
-    WHEN STARTS_WITH(l.name, "accounts/000000000000000000001") THEN "Location Group 1" # list your account ID for each location group separately
-    WHEN STARTS_WITH(l.name, "accounts/000000000000000000002") THEN "Location Group 2" # remove the CASE statement if you only use a single location group
-    ELSE "Unknown"
-  END AS locationGroup,
   r.updateTime AS updateTime,
   r.comment AS comment,
   r.reviewer.displayName,
@@ -19,13 +14,13 @@ SELECT
     END
   ) AS numRating,
   IF(r.reviewReply IS NULL, FALSE, TRUE) AS hasReply,
-  l.locationName AS locationName,
-  ARRAY_TO_STRING(l.address.addressLines, ", ") AS addressLines,
-  l.address.locality AS locality,
-  l.address.administrativeArea AS administrativeArea,
-  l.address.postalCode AS postalCode,
-  l.address.regionCode AS regionCode
+  l.title AS locationName,
+  ARRAY_TO_STRING(l.storefrontAddress.addressLines, ", ") AS addressLines,
+  l.storefrontAddress.locality AS locality,
+  l.storefrontAddress.administrativeArea AS administrativeArea,
+  l.storefrontAddress.postalCode AS postalCode,
+  l.storefrontAddress.regionCode AS regionCode
 FROM
   `<PROJECT_ID>.alligator.reviews` AS r
 JOIN `<PROJECT_ID>.alligator.locations` AS l
-  ON l.name = REGEXP_EXTRACT(r.name, '(.*)/reviews/')
+  ON l.name = REGEXP_EXTRACT(r.name, '^accounts/[^/]+/(.*)/reviews/')

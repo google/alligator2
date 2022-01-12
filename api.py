@@ -29,8 +29,9 @@ from oauth2client import client, file, tools
 from topic_clustering import TopicClustering
 
 # v1 Discovery Documents
-ACCOUNTS = 'mybusinessaccountmanagement'
-FEDERATED_SERVICES = [ACCOUNTS]
+ACCOUNT_MANAGEMENT = 'mybusinessaccountmanagement'
+BUSINESS_INFORMATION = 'mybusinessbusinessinformation'
+FEDERATED_SERVICES = [ACCOUNT_MANAGEMENT, BUSINESS_INFORMATION]
 DISCOVERY_FILE_SUFFIX = "_discovery.json"
 # Legacy Discovery Document
 GMB_DISCOVERY_FILE = "gmb_discovery.json"
@@ -49,8 +50,15 @@ MIN_TOKENS = 20
 INSIGHTS_DAYS_BACK = 540
 CALLS_DAYS_BACK = 7
 DIRECTIONS_NUM_DAYS = "SEVEN"
+LOCATIONS_PER_PAGE = 100
 BQ_JOBS_QUERY_MAXRESULTS_PER_PAGE = 1000
 BQ_TABLEDATA_INSERTALL_BATCHSIZE = 50
+
+LOCATIONS_READ_MASK = ("regularHours,latlng,labels,metadata,relationshipData,"
+                       "name,adWordsLocationExtensions,websiteUri,profile,"
+                       "storeCode,phoneNumbers,serviceArea,categories,"
+                       "storefrontAddress,languageCode,moreHours,specialHours,"
+                       "openInfo,title,serviceItems")
 
 logging.getLogger("googleapiclient.discovery_cache").setLevel(logging.CRITICAL)
 
@@ -111,7 +119,7 @@ class API(object):
     data = []
     page_token = None
     while True:
-      response_json = self.gmb_services[ACCOUNTS].accounts().list(
+      response_json = self.gmb_services[ACCOUNT_MANAGEMENT].accounts().list(
           pageToken=page_token).execute(num_retries=MAX_RETRIES)
 
       data = data + (response_json.get("accounts") or [])
@@ -132,19 +140,22 @@ class API(object):
 
     if not location_id:
       while True:
-        response_json = self.gmb_service.accounts().locations().list(
+        response_json = self.gmb_services[BUSINESS_INFORMATION].accounts(
+        ).locations().list(
             parent=account_id,
-            pageToken=page_token).execute(num_retries=MAX_RETRIES)
+            pageToken=page_token,
+            pageSize=LOCATIONS_PER_PAGE,
+            readMask=LOCATIONS_READ_MASK).execute(num_retries=MAX_RETRIES)
 
         data = data + (response_json.get("locations") or [])
-
         page_token = response_json.get("nextPageToken")
         if not page_token:
           break
 
     else:
-      response_json = self.gmb_service.accounts().locations().get(
-          name=location_id).execute(num_retries=MAX_RETRIES)
+      response_json = self.gmb_services[BUSINESS_INFORMATION].locations().get(
+          name=location_id, readMask=LOCATIONS_READ_MASK).execute(
+              num_retries=MAX_RETRIES)
       data = data + ([response_json] or [])
 
     logging.debug(json.dumps(data, indent=2))
@@ -552,8 +563,12 @@ class API(object):
 
       data_chunk = {"rows": chunk, "ignoreUnknownValues": True}
 
-      self.bq_service.tabledata().insertAll(
+      result = self.bq_service.tabledata().insertAll(
           projectId=self.project_id,
           datasetId=DATASET_ID,
           tableId=table_name,
           body=data_chunk).execute(num_retries=MAX_RETRIES)
+      if "insertErrors" in result:
+        logging.error("Errors found in the BigQuery insert operation. "
+                      "Details below.")
+        logging.error(result["insertErrors"])

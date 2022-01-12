@@ -45,9 +45,10 @@ As the GMB API is migrating to a new [federated model](https://developers.google
 
 Go to the [Samples page](https://developers.google.com/my-business/samples/), download the discovery docs for the services used by this tool, and save the files as indicated in the following table.
 
-| Service                | File Name                                  |
-|:---------------------- |:------------------------------------------ |
-| Account Management API | mybusinessaccountmanagement_discovery.json |
+| Service                  | File Name                                    |
+|:------------------------ |:-------------------------------------------- |
+| Account Management API   | mybusinessaccountmanagement_discovery.json   |
+| Business Information API | mybusinessbusinessinformation_discovery.json |
 
 To download each file, right click **Discovery doc** below the name of each service, and select **Save Link As**. Then, save the file with the name indicated in the table in the same directory.
 

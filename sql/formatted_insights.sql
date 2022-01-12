@@ -1,17 +1,12 @@
 SELECT
-  CASE
-    WHEN STARTS_WITH(l.name, "accounts/000000000000000000001") THEN "Location Group 1" # list your account ID for each location group separately
-    WHEN STARTS_WITH(l.name, "accounts/000000000000000000002") THEN "Location Group 2" # remove the CASE statement if you only use a single location group
-    ELSE "Unknown"
-  END AS locationGroup,
-  i.locationName AS name,
+  l.name AS name,
   i.timeZone AS timeZone,
-  l.locationName AS locationName,
-  ARRAY_TO_STRING(l.address.addressLines, ", ") AS addressLines,
-  l.address.locality AS locality,
-  l.address.administrativeArea AS administrativeArea,
-  l.address.postalCode AS postalCode,
-  l.address.regionCode AS regionCode,
+  l.title AS locationName,
+  ARRAY_TO_STRING(l.storefrontAddress.addressLines, ", ") AS addressLines,
+  l.storefrontAddress.locality AS locality,
+  l.storefrontAddress.administrativeArea AS administrativeArea,
+  l.storefrontAddress.postalCode AS postalCode,
+  l.storefrontAddress.regionCode AS regionCode,
   metricValues.metric AS metric,
   dimensionalValues.value AS value,
   dimensionalValues.metricOption AS metricOption,
@@ -24,4 +19,4 @@ FROM
   CROSS JOIN
     UNNEST(metricValues.dimensionalValues) AS dimensionalValues
   JOIN `<PROJECT_ID>.alligator.locations` AS l
-    ON i.locationName = l.name
+    ON REGEXP_REPLACE(i.locationName, r'^accounts/[^/]+/', '') = l.name

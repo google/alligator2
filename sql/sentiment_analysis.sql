@@ -13,12 +13,12 @@ SELECT
       ELSE NULL
     END
   ) AS numRating,
-  l.locationName AS locationName,
-  ARRAY_TO_STRING(l.address.addressLines, ", ") AS addressLines,
-  l.address.locality AS locality,
-  l.address.administrativeArea AS administrativeArea,
-  l.address.postalCode AS postalCode,
-  l.address.regionCode AS regionCode,
+  l.title AS locationName,
+  ARRAY_TO_STRING(l.storeFrontAddress.addressLines, ", ") AS addressLines,
+  l.storeFrontAddress.locality AS locality,
+  l.storeFrontAddress.administrativeArea AS administrativeArea,
+  l.storeFrontAddress.postalCode AS postalCode,
+  l.storeFrontAddress.regionCode AS regionCode,
   s.annotation.documentSentiment.score AS documentSentimentScore,
   sentences.text.content AS sentenceContent,
   sentences.sentiment.score AS sentenceScore,
@@ -34,7 +34,7 @@ FROM
   JOIN `<PROJECT_ID>.alligator.reviews` AS r
     ON s.name = r.name
   JOIN `<PROJECT_ID>.alligator.locations` AS l
-    ON REGEXP_EXTRACT(s.name, '(.*)/reviews/') = l.name
+    ON REGEXP_EXTRACT(s.name, '^accounts/[^/]+/(.*)/reviews/') = l.name
 GROUP BY
   name,
   updateTime,
