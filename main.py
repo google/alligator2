@@ -97,8 +97,7 @@ class Alligator():
       logging.info("Processing account {} of {}...".format(
           ac_ctr, num_accounts))
 
-      account_id = account.get("name")
-      account_name = u"accounts/{}".format(account_id)
+      account_name = account.get("name")
       locations = api.locations(account_name)
       num_locations = len(locations)
       loc_ctr = 1
