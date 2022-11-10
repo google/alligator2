@@ -2,7 +2,7 @@
 .env
 gmb_discovery.json
 client_secrets.json
-credentials.dat
+token.json
 *.pyc
 __pycache__/
 sentiments_lastrun

@@ -9,19 +9,19 @@ Along with gathering stats, the Google Cloud Natural Language API is used to pro
 ## Google My Business Account Prerequisites
 
 * All locations must roll up to a `Location Group` (formerly known as `Business Account`). Click [here](https://support.google.com/business/answer/6085339?ref_topic=6085325) for more information. Multiple location groups are supported and can be queried accordingly (refer to the samples inside the [sql](sql/) directory.
-* All locations must be _verified_
+* All locations must be _verified_.
 
 ## Installation and Setup
 
 Follow the steps below, or alternatively open the [alligator2.ipynb](alligator2.ipynb) notebook using [Google Colaboratory](https://colab.research.google.com) (preferred for better formatting) or Jupyter for a more interactive installation experience. The notebook contains additional information on maintenance and reporting, and will help you better visualize the data that will get imported into BigQuery after running the solution.
 
-> Unlike traditional notebooks, the alligator2.ipynb notebook references the code in this GitHub repository rather than hosting its own version of the code.
+> Unlike traditional notebooks, the `alligator2.ipynb` notebook references the code in this GitHub repository rather than hosting its own version of the code.
 
 ### Install Python Libraries
 
-Install the required dependencies
+Install the required dependencies:
 
-`$ pip install --upgrade --quiet --requirement requirements.txt`
+    $ pip install --requirement requirements.txt
 
 ### Google Cloud Platform Project Setup
 
@@ -37,30 +37,15 @@ Please note that BigQuery provides a [sandbox](https://cloud.google.com/bigquery
 
 Create a file named `client_secrets.json`, with the credentials downloaded as JSON from your Google Cloud Platform Project API Console.
 
-### Download the Google My Business API Discovery Documents
-
-As the GMB API is migrating to a new [federated model](https://developers.google.com/my-business/preview/content/upcoming_releases), this tool needs to work with a different subset of discovery documents until the migration is completed.
-
-#### Download the federated Google My Business API Discovery Documents
-
-Go to the [Samples page](https://developers.google.com/my-business/samples/), download the discovery docs for the services used by this tool, and save the files as indicated in the following table.
-
-| Service                  | File Name                                    |
-|:------------------------ |:-------------------------------------------- |
-| Account Management API   | mybusinessaccountmanagement_discovery.json   |
-| Business Information API | mybusinessbusinessinformation_discovery.json |
-
-To download each file, right click **Discovery doc** below the name of each service, and select **Save Link As**. Then, save the file with the name indicated in the table in the same directory.
-
-#### Download the v4 Google My Business API Discovery Document
+### Download the Legacy Google My Business API Discovery Document
 
 Go to the [Samples page](https://developers.google.com/my-business/samples/previousVersions#discovery_document), right click **Download discovery document**, and select **Save Link As**. Then, save the file as `gmb_discovery.json` in the same directory.
 
-### Run the solution
+### Run the Solution
 
 Execute the script to start the process of retrieving the reviews for all available locations from all accessible accounts for the authorized user:
 
-`$ python main.py --project_id=<PROJECT_ID>`
+    $ python main.py --project_id=<PROJECT_ID>
 
 The script generates a number of tables in an `alligator` BigQuery dataset.
 

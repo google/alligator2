@@ -1,4 +1,4 @@
-# Alligator 2.0 Data Filler
+# Alligator 2.0 – Data Filler
 
 If you want to simulate data extracted from Google My Business (GMB)
 without having an account associated with a store or group of stores, you can
@@ -19,9 +19,9 @@ real.
 
 2. Install the extra libraries needed for this tool.
 
-   ```sh
-   pip install -r test/requirements.txt
-   ```
+
+         $ pip install --requirement test/requirements.txt
+
 
 3. Edit the `api.py` file, and add this import statement:
 

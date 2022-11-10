@@ -20,7 +20,7 @@ import pandas as pd
 from sklearn.metrics import silhouette_score
 import tensorflow.compat.v2 as tf
 import tensorflow_hub as hub
-import tensorflow_text  # pylint: disable=unused-import
+import tensorflow_text
 
 # This flag disables GPU usage. Comment to use GPU with tensorflow.
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
@@ -36,18 +36,22 @@ class TopicClustering(object):
     tf.get_logger().setLevel("ERROR")
     default_folder = os.path.dirname(os.path.realpath(__file__))
     self.cluster_labels_file_location = os.path.join(
-      default_folder, CLUSTER_LABELS_FILE)
+        default_folder, CLUSTER_LABELS_FILE
+    )
 
     self.model = hub.load(
-        "https://tfhub.dev/google/universal-sentence-encoder-multilingual/3")
+        "https://tfhub.dev/google/universal-sentence-encoder-multilingual/3"
+    )
 
     self.candidate_cluster_names = []
 
     if os.path.isfile(self.cluster_labels_file_location):
       with open(self.cluster_labels_file_location, "r") as labels_file:
         self.candidate_cluster_names = labels_file.read().splitlines()
-        logging.info("Found cluster labels file. %d labels loaded.",
-                     len(self.candidate_cluster_names))
+        logging.info(
+            "Found cluster labels file. %d labels loaded.",
+            len(self.candidate_cluster_names),
+        )
 
       labels_file.close()
 
@@ -61,8 +65,9 @@ class TopicClustering(object):
       The recommended list of topics.
     """
     nouns = [s.replace("translated by google", " ") for s in nouns]
-    candidate_cluster_names = pd.Series(
-        " ".join(nouns).split()).value_counts()[0:150].index.to_list()
+    candidate_cluster_names = (
+        pd.Series(" ".join(nouns).split()).value_counts()[0:150].index.to_list()
+    )
 
     with open(self.cluster_labels_file_location, "w") as labels_file:
       for label in candidate_cluster_names:
@@ -107,11 +112,13 @@ class TopicClustering(object):
     Returns:
       string containing only words of specified syntax in API request
     """
-    return " ".join([
-        s["lemma"].lower()
-        for s in token_syntax
-        if s[u"partOfSpeech"][u"tag"] == tag
-    ])
+    return " ".join(
+        [
+            s["lemma"].lower()
+            for s in token_syntax
+            if s["partOfSpeech"]["tag"] == tag
+        ]
+    )
 
   def modelling_pipeline(self, reviews, num_clusters_list, max_iterations=10):
     """Runs the clustering modelling pipeline with k-means.
@@ -137,27 +144,31 @@ class TopicClustering(object):
 
     scores = dict(zip(num_clusters_list, scores))
     best_silhouette_score = max(scores, key=scores.get)
-    logging.info("Optimal clusters is {} with silhouette score {}".format(
-        best_silhouette_score, scores[best_silhouette_score]))
+    logging.info(
+        f"Optimal clusters is {best_silhouette_score} with silhouette score"
+        f" {scores[best_silhouette_score]}"
+    )
 
     cluster_indices, cluster_centers = self.generate_clusters(
-        vectors, best_silhouette_score, max_iterations)
+        vectors, best_silhouette_score, max_iterations
+    )
 
     index = self.return_most_similar_index(
-        cluster_centers, self.model(self.candidate_cluster_names))
+        cluster_centers, self.model(self.candidate_cluster_names)
+    )
 
     cluster_names = dict(
         zip(
             np.arange(len(cluster_centers)),
-            [self.candidate_cluster_names[i] for i in list(index)]))
+            [self.candidate_cluster_names[i] for i in list(index)],
+        )
+    )
 
     return pd.Series(cluster_indices).map(cluster_names)
 
-  def generate_silhouette_score(self,
-                                vectors,
-                                num_clusters,
-                                max_iterations=10,
-                                seed=32):
+  def generate_silhouette_score(
+      self, vectors, num_clusters, max_iterations=10, seed=32
+  ):
     """Generates the silhouette score of the clustering model.
 
     The Silhouette Coefficient is calculated using the mean intra-cluster
@@ -176,19 +187,17 @@ class TopicClustering(object):
         silhouette score as a float
     """
     cluster_indices, _ = self.generate_clusters(
-        vectors, num_clusters, max_iterations=max_iterations, seed=seed)
+        vectors, num_clusters, max_iterations=max_iterations, seed=seed
+    )
 
     score = silhouette_score(vectors.numpy(), np.array(cluster_indices))
 
-    logging.info("{} clusters yields {} silhouette score".format(
-        num_clusters, score))
+    logging.info(f"{num_clusters} clusters yields {score} silhouette score")
     return score
 
-  def generate_clusters(self,
-                        vectors,
-                        num_clusters,
-                        max_iterations=10,
-                        seed=32):
+  def generate_clusters(
+      self, vectors, num_clusters, max_iterations=10, seed=32
+  ):
     """Generates clusters using vectors using K-means on cosine distance.
 
     Args:
@@ -204,14 +213,15 @@ class TopicClustering(object):
         num_clusters=num_clusters,
         use_mini_batch=False,
         seed=seed,
-        distance_metric=tf.compat.v1.estimator.experimental.KMeans
-        .COSINE_DISTANCE)
+        distance_metric=tf.compat.v1.estimator.experimental.KMeans.COSINE_DISTANCE,
+    )
 
     def input_fn():
       return tf.compat.v1.train.limit_epochs(
           # first convert to numpy due to v1 & eager incompatability
           tf.convert_to_tensor(vectors.numpy(), dtype=tf.float32),
-          num_epochs=1)
+          num_epochs=1,
+      )
 
     previous_centers = None
     score = 0
@@ -223,8 +233,9 @@ class TopicClustering(object):
         previous_centers = cluster_centers
       new_score = kmeans.score(input_fn)  # sum of squared distances
       # break if score improves by less than (arbitrary) 10%
-      logging.debug("Iteration %d - Sum of squared distances: %.0f", i,
-                    new_score)
+      logging.debug(
+          "Iteration %d - Sum of squared distances: %.0f", i, new_score
+      )
       if np.divide(score, new_score) > 1.1 or score == 0:
         score = new_score
       else:
@@ -246,8 +257,8 @@ class TopicClustering(object):
     similarity = tf.reduce_sum(a[:, tf.newaxis] * b, axis=-1)
 
     similarity = tf.math.divide(
-        similarity,
-        tf.norm(a[:, tf.newaxis], axis=-1) * tf.norm(b, axis=-1))
+        similarity, tf.norm(a[:, tf.newaxis], axis=-1) * tf.norm(b, axis=-1)
+    )
 
     indices = tf.math.argmax(similarity, axis=1).numpy()
     if limit_cosine_similarity > 0:
